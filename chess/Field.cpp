@@ -65,10 +65,6 @@ bool Field::operator==(const std::string &f) const {
     return (_col == f[0]) && (_row == f[1] - '0');
 }
 
-void Field::print() const {
-    std::cout << _col << (int)_row << std::endl;
-}
-
 std::string Field::to_string() const {
     std::string s = " 0";
     s[0] = _col;

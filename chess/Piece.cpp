@@ -1,3 +1,4 @@
+#include "BoardAndPiece.hpp"
 #include "Chess.hpp"
 
 Piece::Piece()  : _f(), _isWhite(), _board(nullptr) {}
@@ -89,3 +90,5 @@ void Piece::set_color(bool col) {
 void Piece::set_board(Board* board) {
     _board = board;
 }
+
+Piece::~Piece() {}

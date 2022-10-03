@@ -7,6 +7,7 @@ int main(int argc, const char* argv[]) {
 		Logger::error("Wrong argument count");
 		return -1;
 	}
+
 	Logger::set_mode("Warning");
 	Logger::set_output_filename("Analyse.log");
 
@@ -24,34 +25,6 @@ int main(int argc, const char* argv[]) {
 	Logger::info("Valid moves count: " + std::to_string(m.size()));
 	for(int i = 0; i < m.size(); ++i) {
 		Logger::info(m[i].to_string());
-	}
-
-	return 0;
-
-	Move move('P', false, Field("e2"), Field("e4"));
-	nelly.move(move);
-
-	Logger::info("Board after move: " + move.to_string() + '\n' + nelly.get_board_string());
-	Logger::debug("The FEN of new board: " + nelly.get_fen());
-
-	Logger::info("Getting all possible moves for current board");
-	m = nelly.get_valid_moves();
-
-	Logger::info("Valid moves count: " + std::to_string(m.size()));
-	for(int i = 0; i < m.size(); ++i) {
-		Logger::debug(m[i].to_string());
-	}
-
-	move = Move('p', false, Field("c7"), Field("c5"));
-	nelly.move(move);
-
-	Logger::info("Board after move: " + move.to_string() + '\n' + nelly.get_board_string());
-
-	m = nelly.get_valid_moves();
-
-	Logger::info("Valid moves count: " + std::to_string(m.size()));
-	for(int i = 0; i < m.size(); ++i) {
-		Logger::debug(m[i].to_string());
 	}
 
 	return 0;

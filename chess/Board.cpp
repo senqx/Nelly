@@ -107,7 +107,7 @@ void Board::placing(std::string FEN) {
 }
 
 void Board::load_fen(std::string FEN) {
-        Logger::debug("Loading FEN: " + FEN);   
+        Logger::info("Loading FEN: " + FEN);
         
         int i = 0;
 
@@ -116,6 +116,11 @@ void Board::load_fen(std::string FEN) {
         while(FEN[i] != ' ') {
             s_placing.push_back(FEN[i]);
             ++i;
+            if(i == FEN.size()) {
+                Logger::error("Wrong FEN");
+                load_fen();
+                return;
+            }
         }
         ++i;
 
@@ -328,8 +333,7 @@ bool Board::isEnPass(const Field &f) const {
 
 Board* Board::make_move(const Move &m) const {
     Board* b = new Board(*this);
-    // b->_isWhitesMove ^= 1;
-    b->_isWhitesMove = !b->_isWhitesMove;
+    b->_isWhitesMove ^= 1;
     
     // If it was fake move, return the same position, but with opponent's move
     if(!m.isValid()) {
@@ -411,6 +415,10 @@ bool Board::isSelfCheck(const Move &m) const {
     delete tmp;
     Logger::debug("No self check found");
     return false;    
+}
+
+bool Board::isCheck() const {
+    return isSelfCheck(Move());
 }
 
 std::vector<Move> Board::get_all_possible_moves() const {

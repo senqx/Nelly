@@ -11,15 +11,19 @@ struct Move {
     Field from;
     Field to;
 public:
-    static const char*  move;
+    /// String representation move types
+    static const char* move;
     static const char* capture;
 
+    /// Create empty (fake) move to get same position but with opponent's move
     Move();
 
     Move(char who, bool isCapture, Field from, Field to);
 
+    /// Return human-readable move string representation (For example: e4, Ra1->a4, 0-0)
     std::string to_string() const;
 
+    /// Is this move valid or fake move
     bool isValid() const;
 };
 
