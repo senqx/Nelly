@@ -10,7 +10,8 @@ public:
     Nelly();
 
     /// Load board with given position
-    void load_board_from_fen(std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    void load_board_from_fen(std::string FEN =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     /// Return FEN of the current position
     std::string get_fen() const;

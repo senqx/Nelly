@@ -1,6 +1,8 @@
 #include "Chess.hpp"
 
-Board::Board() : _en_pass(), _halfmoves(0), _move(1), _castles(0b1111), _isWhitesMove(true) {
+Board::Board() : _en_pass(), _halfmoves(0), _move(1), _castles(0b1111),
+    _isWhitesMove(true)
+{
     Logger::debug("Creating empty board");
 
     _board = new char*[size];
@@ -15,8 +17,10 @@ Board::Board() : _en_pass(), _halfmoves(0), _move(1), _castles(0b1111), _isWhite
     }
 }
 
-Board::Board(const Board &b) : _en_pass(b._en_pass), _halfmoves(b._halfmoves), _move(b._move),
- _castles(b._castles), _isWhitesMove(b._isWhitesMove), _pieces() {
+Board::Board(const Board &b) : _en_pass(b._en_pass), _halfmoves(b._halfmoves),
+    _move(b._move), _castles(b._castles), _isWhitesMove(b._isWhitesMove),
+    _pieces()
+{
     Logger::debug("Copying board");
 
     _board = new char*[size];
@@ -107,117 +111,117 @@ void Board::placing(std::string FEN) {
 }
 
 void Board::load_fen(std::string FEN) {
-        Logger::info("Loading FEN: " + FEN);
-        
-        int i = 0;
+    Logger::info("Loading FEN: " + FEN);
 
-        // Placing
-        std::string s_placing;
-        while(FEN[i] != ' ') {
-            s_placing.push_back(FEN[i]);
-            ++i;
-            if(i == FEN.size()) {
-                Logger::error("Wrong FEN");
-                load_fen();
-                return;
-            }
-        }
+    int i = 0;
+
+    // Placing
+    std::string s_placing;
+    while(FEN[i] != ' ') {
+        s_placing.push_back(FEN[i]);
         ++i;
-
-        Logger::debug("Placing: " + s_placing);
-
-        // Who's move it is?
-        char now_moving = FEN[i];
-        if(now_moving != 'w' && now_moving != 'b') {
+        if(i == FEN.size()) {
             Logger::error("Wrong FEN");
             load_fen();
             return;
         }
-        ++i;
-        ++i;
-
-        std::string nm = (now_moving == 'w')? "White" : "Black";
-        Logger::debug("Now moving: " + nm);
-
-        // Castle
-        std::string castle;
-        if(FEN[i] == '-') {
-            ++i;
-        } else {
-            while(FEN[i] != ' ') {
-                castle.push_back(FEN[i]);
-                ++i;
-            }
-        }
-        ++i;
-
-        Logger::debug("Castle: " + castle);
-
-        // En Passant
-        if(FEN[i] == '-') {
-            ++i;
-        } else {
-            std::string field;
-            field.push_back(FEN[i]);
-            ++i;
-            field.push_back(FEN[i]);
-            _en_pass = field;
-        }
-        ++i;
-
-        if(_en_pass.isValid()) {
-            Logger::debug("En passant: " + _en_pass.to_string()); 
-        } else {
-            Logger::debug("En passant: None"); 
-        }
-
-        // Halfmoves
-        std::string tmp;
-        while(FEN[i] != ' ') {
-            tmp.push_back(FEN[i]);
-            ++i;
-        }
-        ++i;
-        Logger::debug("Halfmoves: " + tmp);
-        int halfmoves = std::stoi(tmp);
-
-        tmp.clear();
-        while(i < FEN.size() && FEN[i] != ' ') {
-            tmp.push_back(FEN[i]);
-            ++i;
-        }
-        Logger::debug("Move N: " + tmp);
-        int move = std::stoi(tmp);
-
-        _move = move;
-        _halfmoves = halfmoves;
-        _isWhitesMove = now_moving == 'w';
-
-        _castles = 0;
-
-        for(int i = 0; i < castle.size(); ++i) {
-            switch(castle[i]) {
-                case 'K':
-                    _castles |= 0b1000;
-                    break;
-                case 'Q':
-                    _castles |= 0b0100;
-                    break;
-                case 'k':
-                    _castles |= 0b0010;
-                    break;
-                case 'q':
-                    _castles |= 0b0001;
-                    break;
-                default:
-                    Logger::error("Wrong FEN, so default is loaded instead");
-                    load_fen();
-                    return;
-            }
-        }
-
-        placing(s_placing);
     }
+    ++i;
+
+    Logger::debug("Placing: " + s_placing);
+
+    // Who's move it is?
+    char now_moving = FEN[i];
+    if(now_moving != 'w' && now_moving != 'b') {
+        Logger::error("Wrong FEN");
+        load_fen();
+        return;
+    }
+    ++i;
+    ++i;
+
+    std::string nm = (now_moving == 'w')? "White" : "Black";
+    Logger::debug("Now moving: " + nm);
+
+    // Castle
+    std::string castle;
+    if(FEN[i] == '-') {
+        ++i;
+    } else {
+        while(FEN[i] != ' ') {
+            castle.push_back(FEN[i]);
+            ++i;
+        }
+        }
+    ++i;
+
+    Logger::debug("Castle: " + castle);
+
+    // En Passant
+    if(FEN[i] == '-') {
+        ++i;
+    } else {
+        std::string field;
+        field.push_back(FEN[i]);
+        ++i;
+        field.push_back(FEN[i]);
+        _en_pass = field;
+    }
+    ++i;
+
+    if(_en_pass.isValid()) {
+        Logger::debug("En passant: " + _en_pass.to_string());
+    } else {
+        Logger::debug("En passant: None");
+    }
+
+    // Halfmoves
+    std::string tmp;
+    while(FEN[i] != ' ') {
+        tmp.push_back(FEN[i]);
+        ++i;
+    }
+    ++i;
+    Logger::debug("Halfmoves: " + tmp);
+    int halfmoves = std::stoi(tmp);
+
+    tmp.clear();
+    while(i < FEN.size() && FEN[i] != ' ') {
+        tmp.push_back(FEN[i]);
+        ++i;
+    }
+    Logger::debug("Move N: " + tmp);
+    int move = std::stoi(tmp);
+
+    _move = move;
+    _halfmoves = halfmoves;
+    _isWhitesMove = now_moving == 'w';
+
+    _castles = 0;
+
+    for(int i = 0; i < castle.size(); ++i) {
+        switch(castle[i]) {
+            case 'K':
+                _castles |= 0b1000;
+                break;
+            case 'Q':
+                _castles |= 0b0100;
+                break;
+            case 'k':
+                _castles |= 0b0010;
+                break;
+            case 'q':
+                _castles |= 0b0001;
+                break;
+            default:
+                Logger::error("Wrong FEN, so default is loaded instead");
+                load_fen();
+                return;
+        }
+    }
+
+    placing(s_placing);
+}
 
 std::string Board::get_fen() const {
     std::string fen;
@@ -436,9 +440,13 @@ std::vector<Move> Board::get_all_possible_moves() const {
 std::vector<Move> Board::get_all_possible_moves_but_kings() const {
     std::vector<Move> moves;
     for(int i = 0; i < _pieces.size(); ++i) {
-        if(_pieces[i] && (get_val(_pieces[i]->get_field()) != 'K' &&  get_val(_pieces[i]->get_field()) != 'k') && (_pieces[i]->get_color() == _isWhitesMove)) {
+        if(_pieces[i] && (get_val(_pieces[i]->get_field()) != 'K' &&
+            get_val(_pieces[i]->get_field()) != 'k') &&
+            (_pieces[i]->get_color() == _isWhitesMove))
+        {
             std::vector<Move> movs = _pieces[i]->get_possible_moves();
-            Logger::debug("Moves count without King is: " + std::to_string(movs.size()));
+            Logger::debug("Moves count without King is: " +
+                std::to_string(movs.size()));
             moves.insert(moves.end(), movs.begin(), movs.end());
         }
     }
@@ -462,7 +470,17 @@ std::vector<Move> Board::get_valid_moves() const {
 }
 
 std::string Board::to_string() const {
-    std::string s = "/= = = = = = = = =\\\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n| 0 0 0 0 0 0 0 0 |\n\\= = = = = = = = =/";
+    std::string s =
+"/= = = = = = = = =\\\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+| 0 0 0 0 0 0 0 0 |\n\
+\\= = = = = = = = =/";
     for(int i = 0; i < size; ++i) {
         for(int j = 0; j < size; ++j) {
             s[i*20 + j*2 + 22] = _board[i][j];

@@ -1,6 +1,8 @@
 #include "King.hpp"
 
-void King::add_if_valid(std::vector<Move> &moves, const Field &f, bool color) const {
+void King::add_if_valid(std::vector<Move> &moves, const Field &f,
+    bool color) const
+{
     if(f.isValid()) {
         bool capture = (color == _board->isBlack(f));
         if(capture || _board->isEmpty(f)) {
@@ -10,9 +12,11 @@ void King::add_if_valid(std::vector<Move> &moves, const Field &f, bool color) co
 }
 
 char King::castle_field_attacked() const {
-    Logger::debug("Checking for castle field (King's nearby fields) being under attack");
+    Logger::debug("Checking for castle field (King's nearby fields)\
+        being under attack");
     bool color = get_color();
-    char attacked = 0;  // binary representation for King's side attack and Queen's => kq
+    // binary representation for King's side attack and Queen's => kq
+    char attacked = 0;
     Board* b = _board->make_move(Move());
     std::vector<Move> m = b->get_all_possible_moves_but_kings();
     for(int i = 0; i < m.size(); ++i) {
@@ -70,14 +74,18 @@ std::vector<Move> King::get_possible_moves() const {
     char attacked = castle_field_attacked();
     if(c & (0b0010 << (color * 2))) {
         f = Field(color * 7, 6);
-        if(_board->isEmpty(0 + color * 7, 5) && _board->isEmpty(f) && !(attacked & 2)) {
+        if(_board->isEmpty(0 + color * 7, 5) &&
+            _board->isEmpty(f) && !(attacked & 2))
+        {
             moves.push_back(Move('k' - color*32, false, _f, f));
         }
     }
 
     if(c & (0b0001 << (color * 2))) {
         f = Field(color * 7, 2);
-        if(_board->isEmpty(0 + color * 7, 3) && _board->isEmpty(f) && !(attacked & 1)) {
+        if(_board->isEmpty(0 + color * 7, 3) &&
+            _board->isEmpty(f) && !(attacked & 1))
+        {
             moves.push_back(Move('k' - color*32, false, _f, f));
         }
     }

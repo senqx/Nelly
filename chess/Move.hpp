@@ -20,7 +20,8 @@ public:
 
     Move(char who, bool isCapture, Field from, Field to);
 
-    /// Return human-readable move string representation (For example: e4, Ra1->a4, 0-0)
+    /// Return human-readable move string representation
+    // (For example: e4, Ra1->a4, 0-0)
     std::string to_string() const;
 
     /// Is this move valid or fake move

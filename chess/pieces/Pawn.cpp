@@ -11,12 +11,16 @@ std::vector<Move> Pawn::get_possible_moves() const {
     char who = 'p' - color*32;
 
     Field f(i + 1 - 2*color, j - 1);
-    if(f.isValid() && !_board->isEmpty(f) && ((color == _board->isBlack(f)) || _board->isEnPass(f))) {
+    if(f.isValid() && !_board->isEmpty(f) &&
+        ((color == _board->isBlack(f)) || _board->isEnPass(f)))
+    {
         moves.push_back(Move(who, true, _f, f));
     }
 
     f = Field(i + 1 - 2*color, j + 1);
-    if(f.isValid() && !_board->isEmpty(f) && ((color == _board->isBlack(f)) || _board->isEnPass(f))) {
+    if(f.isValid() && !_board->isEmpty(f) &&
+        ((color == _board->isBlack(f)) || _board->isEnPass(f)))
+    {
         moves.push_back(Move(who, true, _f, f));
     }
 

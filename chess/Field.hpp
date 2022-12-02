@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include "../cpp-logger/Logger.hpp"
+#include "../cpp-logger/logger.hpp"
 
 class Field {
     char _col;
@@ -31,7 +31,8 @@ public:
     /// Get matrix coordinate j (cols) -> (0, 1, 2, ... 7)
     int get_j() const;
 
-    /// Is the given field a valid chess field? (For example: e4 -> true, a9 -> false)
+    /// Is the given field a valid chess field?
+    // (For example: e4 -> true, a9 -> false)
     bool isValid() const;
 
     bool operator==(const Field &f) const;

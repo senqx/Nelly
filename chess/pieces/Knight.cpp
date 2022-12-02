@@ -1,6 +1,8 @@
 #include "Knight.hpp"
 
-void Knight::add_if_valid(std::vector<Move> &moves, const Field &f, bool color) const {
+void Knight::add_if_valid(std::vector<Move> &moves, const Field &f,
+    bool color) const
+{
     char who = 'n' - color*32;
     if(f.isValid()) {
         if(_board->isEmpty(f)) {

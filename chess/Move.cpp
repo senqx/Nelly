@@ -5,20 +5,22 @@ const char* Move::capture = "x";
 
 Move::Move() : who(0) {}
 
-Move::Move(char who, bool isCapture, Field from, Field to) : who(who), isCapture(isCapture), isCheck(false), from(from), to(to) {}
+Move::Move(char who, bool isCapture, Field from, Field to)
+    : who(who), isCapture(isCapture), isCheck(false), from(from), to(to) {}
 
 std::string Move::to_string() const {
     if(who == 0) {
         Logger::error("Fake move has no string representation");
-        return "INVALID MOVE: Fake empty move, to get the same board but with other color perspective";
+        return "INVALID MOVE: Fake empty move,\
+            to get the same board but with other color perspective";
     }
 
     // Castle
     if(who == 'k' || who == 'K') {
         if(from == "e1" || from == "e8") {
             if(to == "g1" || to == "g8") {
-            return "0-0";
-        }
+                return "0-0";
+            }
             if(to == "c1" || to == "c8") {
                 return "0-0-0";
             }
@@ -26,7 +28,8 @@ std::string Move::to_string() const {
     }
 
     if(who != 'p' && who != 'P') {
-        std::string s = who + from.to_string() + (isCapture? capture : move) + to.to_string();
+        std::string s = who + from.to_string() +
+            (isCapture? capture : move) + to.to_string();
         if(isCheck) {
             s.push_back('+');
         }

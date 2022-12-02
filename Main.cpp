@@ -1,5 +1,5 @@
 #include <iostream>
-#include "cpp-logger/Logger.hpp"
+#include "cpp-logger/logger.hpp"
 #include "Nelly.hpp"
 
 int main(int argc, const char* argv[]) {

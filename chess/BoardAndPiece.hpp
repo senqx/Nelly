@@ -13,18 +13,28 @@ class Board {
     /// The board
     char** _board;  
 
-    /// Additional FEN info (What move is it? Is there an En pass ...)
-    int _halfmoves; // Move count without pawn advance or capture
+    /// Additional FEN info (What move is it? Is there an En pass, etc. ...)
+
+    // Move count without pawn advance or capture
+    int _halfmoves;
+
     int _move;
-    char _castles;  // 0 0 0 0 | The binary representation of Castles where the sequence is Q-K-q-k
+
+    // 0 0 0 0 | The binary representation of Castles
+    // where the sequence is Q-K-q-k
+    char _castles;
+
     bool _isWhitesMove;
     Field _en_pass;
 
     /// List of all pieces on the board
     std::vector<Piece*> _pieces;
 
-    /// A methood that only places pieces on the board in given order
-    void placing(std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    /// A methood that takes FEN but
+    // only places pieces on the board in given order
+    // additional info is ignored
+    void placing(std::string FEN =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
 public:
     Board();
@@ -34,11 +44,13 @@ public:
     /// Create board from FEN
     Board(std::string FEN);
 
-    void load_fen(std::string FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    void load_fen(std::string FEN =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     std::string get_fen() const;
 
-    /// Gives the char of field value ('0' - if empty, 'p' for black pawn, 'P' for white pawn ...)
+    /// Gives the char of field value
+    // ('0' - if empty, 'p' for black pawn, 'P' for white pawn, etc. ...)
     char get_val(int i, int j) const;
 
     char get_val(const Field &f) const;
@@ -50,11 +62,13 @@ public:
     char get_castles_binary() const;
 
     /// Check if on given field there is a BLACK piece
+    // Empty returns false
     bool isBlack(int i, int j) const;
 
     bool isBlack(const Field &f) const;
 
     /// Check if on given field there is a WHITE piece
+    // Empty returns false
     bool isWhite(int i, int j) const;
 
     bool isWhite(const Field &f) const;
@@ -101,7 +115,8 @@ public:
 
     Piece(const Field &f);
 
-    /// Create Piece (in HEAP) from given name ('p' for black pawn, 'P'' for white pawn, ...)
+    /// Create Piece (in HEAP) from given name
+    // ('p' for black pawn, 'P'' for white pawn, etc. ...)
     static Piece* create_piece(char letter);
 
     /// Methood for all pieces to calculate their possible (valid or not) moves
