@@ -412,7 +412,7 @@ bool Board::isSelfCheck(const Move &m) const {
     for(int i = 0; i < moves.size(); ++i) {
         if(tmp->get_val(moves[i].to) == king) {
             delete tmp;
-            Logger::debug("Last move is self check");
+            Logger::debug("Latest move is self check");
             return true;
         }
     }
