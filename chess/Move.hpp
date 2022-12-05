@@ -20,7 +20,7 @@ public:
 
     Move(char who, bool isCapture, Field from, Field to);
 
-    /// Return human-readable move string representation
+    /// Return human-readable string representation of the move
     // (For example: e4, Ra1->a4, 0-0)
     std::string to_string() const;
 

@@ -142,6 +142,7 @@ public:
     void set_color(bool col);
 
     /// Set the board (pointer) for this piece
+	// (Aka let the piece know on what board it is)
     void set_board(Board* board);
 
     virtual ~Piece();

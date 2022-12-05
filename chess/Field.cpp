@@ -14,10 +14,13 @@ Field::Field(std::string field) {
     
     _col = field[0];
     _row = field[1] - '0';
-
+	
+	// Not valid field (aka NULL state for Field)
     if(!(_col || _row )) {
         return;
     }
+
+	// Other variations are illegal
 
     if(_col < 'a' || _col > 'h') {
         throw "Invalid col value. (Must be between [a-h])";

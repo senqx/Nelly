@@ -16,7 +16,7 @@ public:
     /// Return FEN of the current position
     std::string get_fen() const;
 
-    /// Graphical representation of board
+    /// Pseudo-Graphical representation of board
     std::string get_board_string() const;
 
     /// Get all valid moves of current position

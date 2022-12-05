@@ -3,7 +3,7 @@
 const char* Move::move = "->";
 const char* Move::capture = "x";
 
-Move::Move() : who(0) {}
+Move::Move() : who(0), from("e2"), to("e4") {}
 
 Move::Move(char who, bool isCapture, Field from, Field to)
     : who(who), isCapture(isCapture), isCheck(false), from(from), to(to) {}
@@ -11,8 +11,7 @@ Move::Move(char who, bool isCapture, Field from, Field to)
 std::string Move::to_string() const {
     if(who == 0) {
         Logger::error("Fake move has no string representation");
-        return "INVALID MOVE: Fake empty move,\
-            to get the same board but with other color perspective";
+        throw "Trying to get string representation of fake move";
     }
 
     // Castle
