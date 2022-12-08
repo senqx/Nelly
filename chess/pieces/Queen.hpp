@@ -5,7 +5,7 @@
 
 class Queen: public Piece {
 public:
-    std::vector<Move> get_possible_moves() const override;
+    std::list<Move> get_possible_moves() const override;
 };
 
 #endif

@@ -20,7 +20,7 @@ public:
     std::string get_board_string() const;
 
     /// Get all valid moves of current position
-    std::vector<Move> get_valid_moves() const;
+    std::list<Move> get_valid_moves() const;
 
     /// Make given move (Deletes previous Board and sets current board)
     void move(const Move &m);

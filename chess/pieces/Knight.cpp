@@ -1,6 +1,6 @@
 #include "Knight.hpp"
 
-void Knight::add_if_valid(std::vector<Move> &moves, const Field &f,
+void Knight::add_if_valid(std::list<Move> &moves, const Field &f,
     bool color) const
 {
     char who = 'n' - color*32;
@@ -15,12 +15,12 @@ void Knight::add_if_valid(std::vector<Move> &moves, const Field &f,
     }
 }
 
-std::vector<Move> Knight::get_possible_moves() const {
+std::list<Move> Knight::get_possible_moves() const {
     int i = get_i();
     int j = get_j();
 
     Logger::debug("Checking for Knight on: " + _f.to_string());
-    std::vector<Move> moves;
+    std::list<Move> moves;
     
     bool color = get_color();
     bool capture;

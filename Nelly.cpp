@@ -17,7 +17,7 @@ std::string Nelly::get_fen() const {
 	return _board->get_fen();
 }
 
-std::vector<Move> Nelly::get_valid_moves() const {
+std::list<Move> Nelly::get_valid_moves() const {
 	return _board->get_valid_moves();
 }
 

@@ -5,13 +5,13 @@ Board::Board() : _en_pass(), _halfmoves(0), _move(1), _castles(0b1111),
 {
     Logger::debug("Creating empty board");
 
-    _board = new char*[size];
-    for(int i = 0; i < size; ++i) {
-        _board[i] = new char[size];
+    _board = new char*[8];
+    for(int i = 0; i < 8; ++i) {
+        _board[i] = new char[8];
     }
 
-    for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++j) {
+    for(int i = 0; i < 8; ++i) {
+        for(int j = 0; j < 8; ++j) {
             _board[i][j] = '0';
         }
     }
@@ -23,13 +23,13 @@ Board::Board(const Board &b) : _en_pass(b._en_pass), _halfmoves(b._halfmoves),
 {
     Logger::debug("Copying board");
 
-    _board = new char*[size];
-    for(int i = 0; i < size; ++i) {
-        _board[i] = new char[size];
+    _board = new char*[8];
+    for(int i = 0; i < 8; ++i) {
+        _board[i] = new char[8];
     }
 
-    for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++j) {
+    for(int i = 0; i < 8; ++i) {
+        for(int j = 0; j < 8; ++j) {
             _board[i][j] = b._board[i][j];
             auto p = Piece::create_piece(_board[i][j]);
             if(p) {
@@ -42,13 +42,13 @@ Board::Board(const Board &b) : _en_pass(b._en_pass), _halfmoves(b._halfmoves),
 }
 
 Board::Board(std::string FEN) {
-    _board = new char*[size];
-    for(int i = 0; i < size; ++i) {
-        _board[i] = new char[size];
+    _board = new char*[8];
+    for(int i = 0; i < 8; ++i) {
+        _board[i] = new char[8];
     }
 
-    for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++j) {
+    for(int i = 0; i < 8; ++i) {
+        for(int j = 0; j < 8; ++j) {
             _board[i][j] = '0';
         }
     }
@@ -122,8 +122,7 @@ void Board::load_fen(std::string FEN) {
         ++i;
         if(i == FEN.size()) {
             Logger::error("Wrong FEN");
-            load_fen();
-            return;
+			exit(1);
         }
     }
     ++i;
@@ -375,7 +374,7 @@ Board* Board::make_move(const Move &m) const {
             }
         }
         
-    } else if(m.who == 'R' || m.who == 'r') {
+    } else if(m.who & 0b1111111 == 'R') /*case insensitive*/ {
         if(m.from == "a1") {
             b->_castles &= 0b1110;
         } else if(m.from == "h1") {
@@ -389,10 +388,22 @@ Board* Board::make_move(const Move &m) const {
 
 	// If it is capture, delete the captured piece from _pieces
     if(m.isCapture) {
-        for(int i = 0; i < b->_pieces.size(); ++i) {
-            if(m.to == b->_pieces[i]->get_field()) {
-                delete b->_pieces[i];
-                b->_pieces.erase(b->_pieces.begin() + i);
+        for(auto it = b->_pieces.begin(); it != b->_pieces.end(); ++it) {
+            if(m.to == (*it)->get_field()) {
+				// If it is Rook, then disable Castle
+				if(b->get_val(m.to) & 0b1111111 == 'R') /*case insensitive*/ {
+					if(m.to == "a1") {
+						b->_castles &= 0b1110;
+					} else if(m.to == "h1") {
+						b->_castles &= 0b1101;
+					} else if(m.to == "a8") {
+						b->_castles &= 0b1011;
+					} else if(m.to == "h8") {
+						b->_castles &= 0b0111;
+					}
+				}
+                delete *it;
+                b->_pieces.erase(it);
                 break;
             }
         }
@@ -409,8 +420,8 @@ bool Board::isSelfCheck(const Move &m) const {
     Board* tmp = make_move(m);
     auto moves = tmp->get_all_possible_moves();
     char king = 'K' + tmp->_isWhitesMove*32;
-    for(int i = 0; i < moves.size(); ++i) {
-        if(tmp->get_val(moves[i].to) == king) {
+    for(auto it = moves.begin(); it != moves.end(); ++it) {
+        if(tmp->get_val(it->to) == king) {
             delete tmp;
             Logger::debug("Latest move is self check");
             return true;
@@ -425,11 +436,11 @@ bool Board::isCheck() const {
     return isSelfCheck(Move());
 }
 
-std::vector<Move> Board::get_all_possible_moves() const {
-    std::vector<Move> moves;
-    for(int i = 0; i < _pieces.size(); ++i) {
-        if(_pieces[i] && (_pieces[i]->get_color() == _isWhitesMove)) {
-            auto movs = _pieces[i]->get_possible_moves();
+std::list<Move> Board::get_all_possible_moves() const {
+    std::list<Move> moves;
+    for(auto it = _pieces.begin(); it !=  _pieces.end(); ++it) {
+        if(*it && ((*it)->get_color() == _isWhitesMove)) {
+            auto movs = (*it)->get_possible_moves();
             Logger::debug("Moves count is: " + std::to_string(movs.size()));
             moves.insert(moves.end(), movs.begin(), movs.end());
         }
@@ -437,14 +448,13 @@ std::vector<Move> Board::get_all_possible_moves() const {
     return moves;
 }
 
-std::vector<Move> Board::get_all_possible_moves_but_kings() const {
-    std::vector<Move> moves;
-    for(int i = 0; i < _pieces.size(); ++i) {
-        if(_pieces[i] && (get_val(_pieces[i]->get_field()) != 'K' &&
-            get_val(_pieces[i]->get_field()) != 'k') &&
-            (_pieces[i]->get_color() == _isWhitesMove))
+std::list<Move> Board::get_all_possible_moves_but_kings() const {
+    std::list<Move> moves;
+    for(auto it = _pieces.begin(); it != _pieces.end(); ++it) {
+        if(*it && (get_val((*it)->get_field()) & 0b1111111) != 'K' &&
+            ((*it)->get_color() == _isWhitesMove))
         {
-            auto movs = _pieces[i]->get_possible_moves();
+            auto movs = (*it)->get_possible_moves();
             Logger::debug("Moves count without King is: " +
                 std::to_string(movs.size()));
             moves.insert(moves.end(), movs.begin(), movs.end());
@@ -453,23 +463,17 @@ std::vector<Move> Board::get_all_possible_moves_but_kings() const {
     return moves;
 }
 
-std::vector<Move> Board::get_valid_moves() const {
+std::list<Move> Board::get_valid_moves() const {
     auto m = get_all_possible_moves();
 
-	// Valid moves are not greater than possible moves
-    std::vector<Move> valid_moves(m.size());
-
     int j = 0;
-    for(int i = 0; i < m.size(); ++i) {
-        if(!isSelfCheck(m[i])) {
-            valid_moves[j] = m[i];
-            ++j;
+    for(auto it = m.begin(); it != m.end(); ++it) {
+        if(isSelfCheck(*it)) {
+			m.erase(it);
         }
     }
 
-	// Shrink to fit
-    valid_moves.resize(j);
-    return valid_moves;
+    return m;
 }
 
 std::string Board::to_string() const {
@@ -484,8 +488,8 @@ std::string Board::to_string() const {
 | 0 0 0 0 0 0 0 0 |\n\
 | 0 0 0 0 0 0 0 0 |\n\
 \\= = = = = = = = =/";
-    for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++j) {
+    for(int i = 0; i < 8; ++i) {
+        for(int j = 0; j < 8; ++j) {
             s[i*20 + j*2 + 22] = _board[i][j];
         }
     }
@@ -495,11 +499,11 @@ std::string Board::to_string() const {
 Board::~Board() {
     Logger::debug("Deleting pieces and board");
 
-    for(int i = 0; i < _pieces.size(); ++i) {
-        delete _pieces[i];
+    for(auto it = _pieces.begin(); it != _pieces.end(); ++it) {
+        delete *it;
     }
 
-    for(int i = 0; i < size; ++i) {
+    for(int i = 0; i < 8; ++i) {
         delete [] _board[i];
     }
     delete [] _board;

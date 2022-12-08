@@ -10,8 +10,9 @@ struct Move {
     bool isCheck;
     Field from;
     Field to;
-public:
-    /// String representation move types
+    
+	
+	/// String representation move types
     static const char* move;
     static const char* capture;
 

@@ -1,6 +1,6 @@
 #include "King.hpp"
 
-void King::add_if_valid(std::vector<Move> &moves, const Field &f,
+void King::add_if_valid(std::list<Move> &moves, const Field &f,
     bool color) const
 {
     if(f.isValid()) {
@@ -18,12 +18,12 @@ char King::castle_field_attacked() const {
     // binary representation for King's side attack and Queen's => kq
     char attacked = 0;
     Board* b = _board->make_move(Move());
-    std::vector<Move> m = b->get_all_possible_moves_but_kings();
-    for(int i = 0; i < m.size(); ++i) {
-        if(m[i].to == Field(0 + color * 7, 5) ) {
+    std::list<Move> m = b->get_all_possible_moves_but_kings();
+    for(auto it = m.begin(); it != m.end(); ++it) {
+        if(it->to == Field(0 + color * 7, 5) ) {
             attacked |= 2;
         }
-        if(m[i].to == Field(0 + color * 7, 3)) {
+        if(it->to == Field(0 + color * 7, 3)) {
             attacked |= 1;
         }
     }
@@ -31,12 +31,12 @@ char King::castle_field_attacked() const {
     return attacked;
 }
 
-std::vector<Move> King::get_possible_moves() const {
+std::list<Move> King::get_possible_moves() const {
     int j = get_j();
     int i = get_i();
 
     Logger::debug("Checking for King on: " + _f.to_string());
-    std::vector<Move> moves;
+    std::list<Move> moves;
     
     bool color = get_color();
     bool capture;

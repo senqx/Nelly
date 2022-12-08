@@ -1,11 +1,11 @@
 #include "Rook.hpp"
 
-std::vector<Move> Rook::get_possible_moves() const {
+std::list<Move> Rook::get_possible_moves() const {
     int j = get_j();
     int i = get_i();
 
     Logger::debug("Checking for Rook on: " + _f.to_string());
-    std::vector<Move> moves;
+    std::list<Move> moves;
     
     bool color = get_color();
     

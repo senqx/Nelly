@@ -1,11 +1,11 @@
 #include "Pawn.hpp"
 
-std::vector<Move> Pawn::get_possible_moves() const {
+std::list<Move> Pawn::get_possible_moves() const {
     int j = get_j();
     int i = get_i();
 
     Logger::debug("Checking for Pawn on: " + _f.to_string());
-    std::vector<Move> moves;
+    std::list<Move> moves;
     
     bool color = get_color();
     char who = 'p' - color*32;

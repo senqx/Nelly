@@ -3,7 +3,7 @@
 const char* Move::move = "->";
 const char* Move::capture = "x";
 
-Move::Move() : who(0), from("e2"), to("e4") {}
+Move::Move() : who(0), from(), to() {}
 
 Move::Move(char who, bool isCapture, Field from, Field to)
     : who(who), isCapture(isCapture), isCheck(false), from(from), to(to) {}

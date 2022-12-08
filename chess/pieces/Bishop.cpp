@@ -1,11 +1,11 @@
 #include "Bishop.hpp"
 
-std::vector<Move> Bishop::get_possible_moves() const {
+std::list<Move> Bishop::get_possible_moves() const {
     int i = get_i();
     int j = get_j();
 
     Logger::debug("Checking for Bishop on: " + _f.to_string());
-    std::vector<Move> moves;
+    std::list<Move> moves;
     
     bool color = get_color();
     char who = 'b' - color*32;

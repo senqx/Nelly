@@ -1,7 +1,7 @@
 #ifndef __BOARD_AND_PIECES__
 #define __BOARD_AND_PIECES__
 
-#include <vector>
+#include <list>
 #include "Move.hpp"
 
 class Board;
@@ -10,7 +10,7 @@ class Piece;
 class Board {
     static const int size = 8;
 
-    /// The board
+	/// The boards
     char** _board;  
 
     /// Additional FEN info (What move is it? Is there an En pass, etc. ...)
@@ -28,7 +28,7 @@ class Board {
     Field _en_pass;
 
     /// List of all pieces on the board
-    std::vector<Piece*> _pieces;
+    std::list<Piece*> _pieces;
 
     /// A methood that takes FEN but
     // only places pieces on the board in given order
@@ -91,13 +91,13 @@ public:
     bool isCheck() const;
 
     /// Calculate all possible moves for current board (Valid or not)
-    std::vector<Move> get_all_possible_moves() const;
+    std::list<Move> get_all_possible_moves() const;
 
     /// Calculate all possible moves for current board but king's moves
-    std::vector<Move> get_all_possible_moves_but_kings() const;
+    std::list<Move> get_all_possible_moves_but_kings() const;
 
     /// Return only Valid moves (Filter invalid moves)
-    std::vector<Move> get_valid_moves() const;
+    std::list<Move> get_valid_moves() const;
 
     /// The visualisation of the board
     std::string to_string() const;
@@ -120,7 +120,7 @@ public:
     static Piece* create_piece(char letter);
 
     /// Methood for all pieces to calculate their possible (valid or not) moves
-    virtual std::vector<Move> get_possible_moves() const = 0;
+    virtual std::list<Move> get_possible_moves() const = 0;
 
     /// 0 - Black, 1 - White
     bool get_color() const;
