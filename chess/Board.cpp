@@ -59,9 +59,8 @@ void Board::placing(std::string FEN) {
     int i = 0, j = 0;
     for (size_t index = 0; index < FEN.size(); ++index) {
         if (i > 7) {
-            Logger::error("Wrong input");
-            placing();
-            return;
+            Logger::error("Wrong placing input");
+			exit(1);
         }
 
 		Piece* p = nullptr;
@@ -102,9 +101,8 @@ void Board::placing(std::string FEN) {
                 j += (FEN[index] - '0');
                 break;
             default:
-                Logger::error("Wrong character!");
-                placing();
-                return;
+                Logger::error("Wrong character in placing!");
+				exit(1);
         }
     }
     Logger::debug("Placing successfully finished!");
@@ -132,9 +130,8 @@ void Board::load_fen(std::string FEN) {
     // Who's move it is?
     char now_moving = FEN[i];
     if(now_moving != 'w' && now_moving != 'b') {
-        Logger::error("Wrong FEN");
-        load_fen();
-        return;
+        Logger::error("Wrong FEN. Can't resolve who is moving");
+        exit(1);
     }
     i += 2;
 
@@ -153,7 +150,11 @@ void Board::load_fen(std::string FEN) {
     }
     ++i;
 
-    Logger::debug("Castle: " + castle);
+	if(castle.empty()) {
+    	Logger::debug("Castle: None");
+	} else {
+    	Logger::debug("Castle: " + castle);
+	}
 
     // En Passant
     if(FEN[i] == '-') {
@@ -212,9 +213,8 @@ void Board::load_fen(std::string FEN) {
                 _castles |= 0b0001;
                 break;
             default:
-                Logger::error("Wrong FEN, so default is loaded instead");
-                load_fen();
-                return;
+                Logger::error("Wrong FEN. Castle resolving error");
+				exit(1);
         }
     }
 
@@ -346,14 +346,14 @@ Board* Board::make_move(const Move &m) const {
     ++(b->_move);
 
     // halfmoves counter
-    if(m.isCapture || m.who == 'P' || m.who == 'p') {
+    if(m.isCapture || (m.who & 0b11011111) == 'P') {
         b->_halfmoves = 0;
     } else {
         ++(b->_halfmoves);
     }
 
     // Castle rules
-    if(m.who == 'K' || m.who == 'k') {
+    if((m.who & 0b11011111) == 'K') {
         if(m.from == "e1") {
             b->_castles &= 0b0011;
             if(m.to == "g1") {
@@ -374,7 +374,7 @@ Board* Board::make_move(const Move &m) const {
             }
         }
         
-    } else if(m.who & 0b1111111 == 'R') /*case insensitive*/ {
+    } else if((m.who & 0b11011111) == 'R') {
         if(m.from == "a1") {
             b->_castles &= 0b1110;
         } else if(m.from == "h1") {
@@ -391,7 +391,7 @@ Board* Board::make_move(const Move &m) const {
         for(auto it = b->_pieces.begin(); it != b->_pieces.end(); ++it) {
             if(m.to == (*it)->get_field()) {
 				// If it is Rook, then disable Castle
-				if(b->get_val(m.to) & 0b1111111 == 'R') /*case insensitive*/ {
+				if((b->get_val(m.to) & 0b11011111) == 'R') {
 					if(m.to == "a1") {
 						b->_castles &= 0b1110;
 					} else if(m.to == "h1") {
@@ -403,7 +403,7 @@ Board* Board::make_move(const Move &m) const {
 					}
 				}
                 delete *it;
-                b->_pieces.erase(it);
+                b->_pieces.erase(it++);
                 break;
             }
         }
@@ -451,7 +451,7 @@ std::list<Move> Board::get_all_possible_moves() const {
 std::list<Move> Board::get_all_possible_moves_but_kings() const {
     std::list<Move> moves;
     for(auto it = _pieces.begin(); it != _pieces.end(); ++it) {
-        if(*it && (get_val((*it)->get_field()) & 0b1111111) != 'K' &&
+        if(*it && (get_val((*it)->get_field()) & 0b11011111) != 'K' &&
             ((*it)->get_color() == _isWhitesMove))
         {
             auto movs = (*it)->get_possible_moves();
@@ -469,7 +469,7 @@ std::list<Move> Board::get_valid_moves() const {
     int j = 0;
     for(auto it = m.begin(); it != m.end(); ++it) {
         if(isSelfCheck(*it)) {
-			m.erase(it);
+			m.erase(it++);
         }
     }
 

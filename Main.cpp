@@ -6,16 +6,17 @@
 // Default settings
 static bool isHelp = false;
 static bool isVerbose = false;
+static bool isDebug = false;
 static std::string outFileName = "Anylize.log";
 static std::string fen = "";
 //	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 static const char* helpMessage = 
-	"	Usage: Nelly [options...] [FEN] \n\
+	"Usage: Nelly [options...] [FEN]\n\
 	 Options:\n\
 	 --help,		-h	->	show help\n\
-	 --verbose,		-v	->	set logger to debug mode (show moves in detail)\n\
-	 						and enable terminal output\n\
+	 --verbose,		-v	->  enable terminal output\n\
+	 --debug,		-d	->	enable debug mode\n\
 	 --outfile,		-o	->	specify log file name (next argument)\n";
 
 // Help functions
@@ -25,6 +26,10 @@ void set_help() {
 
 void set_verbose() {
 	isVerbose = true;
+}
+
+void set_debug() {
+	isDebug = true;
 }
 
 void set_filename(int &argc, const char** argv, int &i) {
@@ -74,6 +79,8 @@ void handle_arguments(int argc, const char** argv) {
 					set_verbose();
 				} else if(std::string(argv[i]) == "--outfile") {
 					set_filename(argc, argv, i);
+				} else if(std::string(argv[i]) == "--debug") {
+					set_debug();	
 				} else {
 					std::cerr << "Unknown parameter " <<
 						std::string(argv[i]) << std::endl;
@@ -89,6 +96,8 @@ void handle_arguments(int argc, const char** argv) {
 					for(int j = 1; j < size; ++j) {	
 						if(argv[i][j] == 'v') {
 							set_verbose();
+						} else if (argv[i][j] == 'd') {
+							set_debug();		
 						} else {
 							if(argv[i][j] == 'o') {
 								std::cerr << 
@@ -111,6 +120,8 @@ void handle_arguments(int argc, const char** argv) {
 						set_filename(argc, argv, i);
 					} else if(argv[i][1] == 'v') {
 						set_verbose();
+					} else if(argv[i][1] == 'd') {
+						set_debug();	
 					} else {
 						std::cerr << "Unknown parameter " <<
 							std::string(argv[i]) << std::endl;
@@ -138,8 +149,11 @@ int main(int argc, const char* argv[]) {
 
 	// Normal check
 	if(isVerbose) {
-		Logger::set_mode("Debug");
 		Logger::set_terminal_output(true);
+	}
+
+	if(isDebug) {
+		Logger::set_mode("Debug");
 	}
 	
 	if(fen.empty()) {
