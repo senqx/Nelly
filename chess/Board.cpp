@@ -1,32 +1,17 @@
 #include "Chess.hpp"
 
-Board::Board() : _en_pass(), _halfmoves(0), _move(1), _castles(0b1111),
-    _isWhitesMove(true)
-{
-    Logger::debug("Creating empty board");
-
-    _board = new char*[8];
-    for(int i = 0; i < 8; ++i) {
-        _board[i] = new char[8];
-    }
-
-    for(int i = 0; i < 8; ++i) {
-        for(int j = 0; j < 8; ++j) {
-            _board[i][j] = '0';
-        }
-    }
-}
+Board::Board() : _board{{'0','0','0','0','0','0','0','0'},
+	{'0','0','0','0','0','0','0','0'}, {'0','0','0','0','0','0','0','0'},
+	{'0','0','0','0','0','0','0','0'}, {'0','0','0','0','0','0','0','0'},
+	{'0','0','0','0','0','0','0','0'}, {'0','0','0','0','0','0','0','0'},
+	{'0','0','0','0','0','0','0','0'}}, _en_pass(), _halfmoves(0), _move(1),
+   	_castles(0b1111), _isWhitesMove(true) {}
 
 Board::Board(const Board &b) : _en_pass(b._en_pass), _halfmoves(b._halfmoves),
     _move(b._move), _castles(b._castles), _isWhitesMove(b._isWhitesMove),
     _pieces()
 {
     Logger::debug("Copying board");
-
-    _board = new char*[8];
-    for(int i = 0; i < 8; ++i) {
-        _board[i] = new char[8];
-    }
 
     for(int i = 0; i < 8; ++i) {
         for(int j = 0; j < 8; ++j) {
@@ -42,16 +27,6 @@ Board::Board(const Board &b) : _en_pass(b._en_pass), _halfmoves(b._halfmoves),
 }
 
 Board::Board(std::string FEN) {
-    _board = new char*[8];
-    for(int i = 0; i < 8; ++i) {
-        _board[i] = new char[8];
-    }
-
-    for(int i = 0; i < 8; ++i) {
-        for(int j = 0; j < 8; ++j) {
-            _board[i][j] = '0';
-        }
-    }
     load_fen(FEN);
 }
 
@@ -502,9 +477,4 @@ Board::~Board() {
     for(auto it = _pieces.begin(); it != _pieces.end(); ++it) {
         delete *it;
     }
-
-    for(int i = 0; i < 8; ++i) {
-        delete [] _board[i];
-    }
-    delete [] _board;
 }

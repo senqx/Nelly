@@ -10,14 +10,13 @@ class Piece;
 class Board {
     static const int size = 8;
 
-	/// The boards
-    char** _board;  
+	/// The board
+    char _board[size][size];  
 
     /// Additional FEN info (What move is it? Is there an En pass, etc. ...)
 
     // Move count without pawn advance or capture
     int _halfmoves;
-
     int _move;
 
     // 0 0 0 0 | The binary representation of Castles
