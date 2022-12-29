@@ -101,6 +101,9 @@ public:
     /// The visualisation of the board
     std::string to_string() const;
 
+	/// Get move count for specified depth
+	size_t get_valid_moves_count_for_depth(unsigned int depth) const;
+
     ~Board();
 };
 

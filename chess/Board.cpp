@@ -471,6 +471,23 @@ std::string Board::to_string() const {
     return s;
 }
 
+
+/// Get move count for specified depth
+size_t Board::get_valid_moves_count_for_depth(unsigned int depth) const {
+	auto m = get_valid_moves();
+	if(!depth) {
+		return m.size();
+	}
+
+	size_t count = 0;
+	for(auto it = m.begin(); it != m.end(); ++it) {
+		auto b = make_move(*it);
+		count += b->get_valid_moves_count_for_depth(depth - 1);
+	}
+
+	return count;
+}
+
 Board::~Board() {
     Logger::debug("Deleting pieces and board");
 

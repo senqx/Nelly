@@ -27,6 +27,11 @@ void Nelly::move(const Move &m) {
 	delete prev;
 }
 
+/// Get valid moves count for specified depth
+size_t Nelly::get_valid_moves_count_for_depth(unsigned int depth) const {
+	return _board->get_valid_moves_count_for_depth(depth - 1);
+}
+
 Nelly::~Nelly() {
 	delete _board;
 }

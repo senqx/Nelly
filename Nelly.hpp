@@ -24,6 +24,9 @@ public:
 
     /// Make given move (Deletes previous Board and sets current board)
     void move(const Move &m);
+	
+	/// Get valid moves count for specified depth
+	size_t get_valid_moves_count_for_depth(unsigned int depth) const;
 
     ~Nelly();
 };

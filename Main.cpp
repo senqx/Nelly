@@ -7,6 +7,7 @@
 static bool isHelp = false;
 static bool isVerbose = false;
 static bool isDebug = false;
+static unsigned int depth = 1;
 static std::string outFileName = "Anylize.log";
 static std::string fen = "";
 //	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -17,7 +18,8 @@ static const char* helpMessage =
 	 --help,		-h	->	show help\n\
 	 --verbose,		-v	->  enable terminal output\n\
 	 --debug,		-d	->	enable debug mode\n\
-	 --outfile,		-o	->	specify log file name (next argument)\n";
+	 --outfile,		-o	->	specify log file name (next argument)\n\
+	 --debug,		-D	->	specify depth for depth analyze\n";
 
 // Help functions
 void set_help() {
@@ -48,6 +50,22 @@ void set_filename(int &argc, const char** argv, int &i) {
 	}
 }
 
+void set_depth(int &argc, const char** argv, int &i) {
+	++i;
+	if(i != argc) {
+		char c = argv[i][0];
+		if(c >= '1' && c <= '9') {
+			depth = std::stoi(argv[i]);
+		} else {
+			std::cerr << "Wrong depth value" << std::endl;
+			exit(1);
+		}
+	} else {
+		std::cerr << "Expected depth value, but got nothing" << std::endl;
+		exit(1);
+	}
+}
+
 void handle_arguments(int argc, const char** argv) {
 	for(int i = 1; i < argc; ++i) {
 		if(i == argc - 1) {
@@ -73,14 +91,17 @@ void handle_arguments(int argc, const char** argv) {
 		if(argv[i][0] == '-') {
 			// It is a word argument
 			if(argv[i][1] == '-') {
-				if(std::string(argv[i]) ==  "--help") {
+				std::string arg(argv[i]);
+				if(arg ==  "--help") {
 					set_help();
-				} else if(std::string(argv[i]) == "--verbose") {
+				} else if(arg == "--verbose") {
 					set_verbose();
-				} else if(std::string(argv[i]) == "--outfile") {
+				} else if(arg == "--outfile") {
 					set_filename(argc, argv, i);
-				} else if(std::string(argv[i]) == "--debug") {
+				} else if(arg == "--debug") {
 					set_debug();	
+				} else if(arg == "--depth") {
+					set_depth(argc, argv, i);
 				} else {
 					std::cerr << "Unknown parameter " <<
 						std::string(argv[i]) << std::endl;
@@ -93,38 +114,46 @@ void handle_arguments(int argc, const char** argv) {
 				bool isArray = size > 2;
 
 				if(isArray) {
-					for(int j = 1; j < size; ++j) {	
-						if(argv[i][j] == 'v') {
+					for(int j = 1; j < size; ++j) {
+						char arg = argv[i][j];	
+						if(arg == 'v') {
 							set_verbose();
-						} else if (argv[i][j] == 'd') {
+						} else if(arg == 'd') {
 							set_debug();		
 						} else {
-							if(argv[i][j] == 'o') {
+							// Errors
+							if(arg == 'o') {
 								std::cerr << 
 									"Output file name parameter -o "<<
 									"must be used seperately" << std::endl;
-							} else if(argv[i][j] == 'h') {
+							} else if(arg == 'h') {
 								std::cerr << "Help parameter must be lone " <<
 									"-h or --help" << std::endl;
+							} else if(arg == 'D') {
+								std::cerr << "Depth parameter must be lone " <<
+									"-D or --depth" << std::endl;	
 							} else {
 								std::cerr << "Unknown parameter -" <<
-									argv[i][j] << std::endl;
+									arg << std::endl;
 							}
 							exit(1);
 						}
 					}
 				} else {
-					if(argv[i][1] == 'h') {
+					char arg = argv[i][1];
+					if(arg == 'h') {
 						set_help();
-					} else if(argv[i][1] == 'o') {
+					} else if(arg == 'o') {
 						set_filename(argc, argv, i);
-					} else if(argv[i][1] == 'v') {
+					} else if(arg == 'v') {
 						set_verbose();
-					} else if(argv[i][1] == 'd') {
+					} else if(arg == 'd') {
 						set_debug();	
+					} else if(arg == 'D') {
+						set_depth(argc, argv, i);	
 					} else {
-						std::cerr << "Unknown parameter " <<
-							std::string(argv[i]) << std::endl;
+						std::cerr << "Unknown parameter -" <<
+							arg << std::endl;
 						exit(1);
 					}
 				}
@@ -171,14 +200,9 @@ int main(int argc, const char* argv[]) {
 	nelly.load_board_from_fen(fen);
 	Logger::info("The board is\n" + nelly.get_board_string());
 
-	Logger::info("Getting all possible moves for current board");
-	auto m = nelly.get_valid_moves();
-
-	Logger::info("Valid moves count: " + std::to_string(m.size()));
-	for(auto it = m.begin(); it != m.end(); ++it) {
-		Logger::info(it->to_string());
-	}
-
+	Logger::info("Calculating valid moves count for depth " + std::to_string(depth));
+	size_t count = nelly.get_valid_moves_count_for_depth(depth);
+	Logger::info("Move count for depth " + std::to_string(depth) + " is " + std::to_string(count));
 	return 0;
 }
 
