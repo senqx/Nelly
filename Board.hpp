@@ -18,7 +18,10 @@ public:
 };
 
 class Board {
+public:
 	static constexpr unsigned char SIZE = 8;
+
+private:
 
 	char _board[SIZE * SIZE];
 
@@ -53,7 +56,7 @@ public:
 	void loadFen(const std::string&& fen =
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") noexcept;
 
-	char getVal(unsigned char pos) const noexcept;
+	char getVal(const unsigned char pos) const noexcept;
 	
 	void print() const noexcept;
 };
