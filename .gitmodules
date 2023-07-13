@@ -1,0 +1,3 @@
+[submodule "cpp-logger"]
+	path = cpp-logger
+	url = https://github.com/lightningInARock/cpp-logger
