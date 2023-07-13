@@ -35,7 +35,7 @@ void Board::loadFen(const std::string& fen) noexcept {
 			return;
 		}
 
-		whosMove(++i, fen);
+		loadWhosMove(++i, fen);
 		loadCastles(++i, fen);
 		loadEnPass(++i, fen);
 		loadMoves(++i, fen);
@@ -114,7 +114,7 @@ unsigned char Board::place(const std::string& fen) {
 	return i;
 }
 
-void Board::whosMove(unsigned char& r_i, const std::string& fen) {
+void Board::loadWhosMove(unsigned char& r_i, const std::string& fen) {
 	assert(r_i < fen.size());
 
 	if(fen[r_i] == 'w') {
