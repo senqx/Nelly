@@ -21,7 +21,8 @@ public:
 
 private:
   char _board[SIZE * SIZE];
-
+  unsigned char _piecePositions[SIZE * 4];
+  unsigned char _pieceCount;
   // Castle is available for
   // White: [Q]ueen-side [K]ing-side
   // Black: [q]ueen-side [k]ing-side

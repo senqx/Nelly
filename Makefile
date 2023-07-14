@@ -39,7 +39,7 @@ $(CPP_OBJ): create_directories
 
 create_directories:
 		@echo "Starting build!"
-		@test -d $(OBJ_DIR) || mkdir -v $(OBJ_DIR)
+		@test -d $(OBJ_DIR) || mkdir -v -p $(OBJ_DIR)
 
 clean:
 		rm -rf $(OBJ_DIR) $(BIN_DIR)/$(EXE_NAME)
