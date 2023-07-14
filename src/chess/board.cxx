@@ -3,6 +3,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "../cpp-logger/logger.h"
+
 Board::Board()
 	: _board {
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
@@ -22,11 +24,11 @@ Board::Board()
 {}
 
 void Board::loadFen(const std::string& fen) noexcept {
-	try {
+  Logger::debug("Loading fen: " + fen);
+  try {
 		unsigned char i = place(fen);
-		// If no additional fields given
-		// Consider starting position
 		if(i == fen.size()) {
+      Logger::debug("As no additional parameters were given, use defaults");
 			_isWhitesMove = true;
 			_QKqk = 0b01010101;
 			_enPass = -1;
@@ -40,7 +42,7 @@ void Board::loadFen(const std::string& fen) noexcept {
 		loadEnPass(++i, fen);
 		loadMoves(++i, fen);
 	} catch(FenException& e) {
-		std::cerr << e.what() << std::endl;
+    Logger::error(e.what());
 		exit(1);
 	}
 }
@@ -85,7 +87,8 @@ void Board::print() const noexcept {
 }
 
 unsigned char Board::place(const std::string& fen) {
-	unsigned char j = 0;
+  Logger::debug("Placing pieces");
+  unsigned char j = 0;
 	unsigned char i = 0;
 	for(; i < fen.size(); ++i) {
 		switch(fen[i]) {
@@ -115,6 +118,7 @@ unsigned char Board::place(const std::string& fen) {
 }
 
 void Board::loadWhosMove(unsigned char& r_i, const std::string& fen) {
+  Logger::debug("Loading whose move is it");
 	assert(r_i < fen.size());
 
 	if(fen[r_i] == 'w') {
@@ -128,6 +132,7 @@ void Board::loadWhosMove(unsigned char& r_i, const std::string& fen) {
 }
 
 void Board::loadCastles(unsigned char& r_i, const std::string& fen) {
+  Logger::debug("Loading castle status");
 	assert(r_i < fen.size());
 	while(fen[r_i] != ' ') {
 		switch(fen[r_i]) {
@@ -155,6 +160,7 @@ void Board::loadCastles(unsigned char& r_i, const std::string& fen) {
 }
 
 void Board::loadEnPass(unsigned char& r_i, const std::string& fen) {
+  Logger::debug("Loading en-passant info");
 	assert(r_i < fen.size());
 	unsigned char coord = -1;
 	coord += fen[r_i] - 'a';
@@ -165,6 +171,7 @@ void Board::loadEnPass(unsigned char& r_i, const std::string& fen) {
 }
 
 void Board::loadMoves(unsigned char& r_i, const std::string& fen) {
+  Logger::debug("Loading half moves");
 	assert(r_i < fen.size());
 	while(fen[r_i] != ' ') {
 		if(fen[r_i] < '0' || fen[r_i] > '9') {
@@ -178,6 +185,7 @@ void Board::loadMoves(unsigned char& r_i, const std::string& fen) {
 
 	++r_i;
 
+  Logger::debug("Loading total moves");
 	while(r_i < fen.size()) {
 		if(fen[r_i] < '0' || fen[r_i] > '9') {
 			throw FenException("Wrong FEN: Invalid halfMoves");

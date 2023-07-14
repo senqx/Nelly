@@ -7,6 +7,7 @@
 int main(int argc, char* argv[]) {
   Logger::set_mode("debug");
   Logger::set_terminal_output(true);
+  Logger::debug("Running Nelly v0.0.1");
 
   Board b;
   if(argc == 2) {
