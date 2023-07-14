@@ -46,7 +46,7 @@ private:
   unsigned char place(const std::string& fen);
 
   // Get who's moving from FEN
-  void loadWhosMove(unsigned char& r_i, const std::string& fen);
+  void loadWhoseMove(unsigned char& r_i, const std::string& fen);
 
   // Load Castles from FEN
   void loadCastles(unsigned char& r_i, const std::string& fen);
