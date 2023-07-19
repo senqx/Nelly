@@ -3,9 +3,8 @@
 #include <cassert>
 #include <vector>
 
-std::vector<Move> Pawn::getValidMoves(
-    Board* b, const unsigned char pos) const noexcept
-{
+std::vector<Move>
+Pawn::getValidMoves(Board* b, const unsigned char pos) const noexcept {
   // Pawn can't be at first and last line
   assert((pos < b->SIZE * b->SIZE - 8) && (pos >= 8));
 
@@ -43,33 +42,27 @@ std::vector<Move> Pawn::getValidMoves(
   return moves;
 }
 
-std::vector<Move> Knight::getValidMoves(
-    Board* b, const unsigned char pos) const noexcept
-{
+std::vector<Move>
+Knight::getValidMoves(Board* b, const unsigned char pos) const noexcept {
   return std::vector<Move>(1);
 }
 
-std::vector<Move> Bishop::getValidMoves(
-    Board* b, const unsigned char pos) const noexcept
-{
+std::vector<Move>
+Bishop::getValidMoves(Board* b, const unsigned char pos) const noexcept {
   return std::vector<Move>(1);
 }
 
-std::vector<Move> Rook::getValidMoves(
-    Board* b, const unsigned char pos) const noexcept
-{
+std::vector<Move>
+Rook::getValidMoves(Board* b, const unsigned char pos) const noexcept {
   return std::vector<Move>(1);
 }
 
-std::vector<Move> Queen::getValidMoves(
-    Board* b, const unsigned char pos) const noexcept
-{
+std::vector<Move>
+Queen::getValidMoves(Board* b, const unsigned char pos) const noexcept {
   return std::vector<Move>(1);
 }
 
-std::vector<Move> King::getValidMoves(
-    Board* b, const unsigned char pos) const noexcept
-{
+std::vector<Move>
+King::getValidMoves(Board* b, const unsigned char pos) const noexcept {
   return std::vector<Move>(1);
 }
-

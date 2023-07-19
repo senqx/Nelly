@@ -1,9 +1,9 @@
 #ifndef __PIECES__
 #define __PIECES__
 
-#include <vector>
-
 #include "board.h"
+
+#include <vector>
 
 struct Move {
   unsigned char from;
@@ -25,38 +25,39 @@ struct Move {
 
 class Piece {
 public:
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept = 0;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept = 0;
 };
 
 class Pawn : public Piece {
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept override;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
 class Knight : public Piece {
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept override;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
 class Bishop : public Piece {
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept override;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
 class Rook : public Piece {
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept override;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
 class Queen : public Piece {
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept override;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
 class King : public Piece {
-  virtual std::vector<Move> getValidMoves(
-      Board* b, const unsigned char pos) const noexcept override;
+  virtual std::vector<Move>
+  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
 #endif
+
