@@ -89,7 +89,7 @@ void Board::print() const noexcept {
 }
 
 unsigned char Board::place(const std::string& fen) {
-  Logger::debug("Starting piece placement");
+  Logger::debug("Starting piece placement...");
   unsigned char j = 0;
 	unsigned char i = 0;
 	for (; i < fen.size(); ++i) {
@@ -125,7 +125,7 @@ unsigned char Board::place(const std::string& fen) {
 }
 
 void Board::loadWhoseMove(unsigned char& r_i, const std::string& fen) {
-  Logger::debug("Loading whose move is it");
+  Logger::debug("Loading whose move is it...");
 	assert(r_i < fen.size());
 
 	if (fen[r_i] == 'w') {
@@ -141,7 +141,7 @@ void Board::loadWhoseMove(unsigned char& r_i, const std::string& fen) {
 }
 
 void Board::loadCastles(unsigned char& r_i, const std::string& fen) {
-  Logger::debug("Loading castle status");
+  Logger::debug("Loading castle status...");
 	assert(r_i < fen.size());
 	while (fen[r_i] != ' ') {
 		switch (fen[r_i]) {
@@ -173,7 +173,7 @@ void Board::loadCastles(unsigned char& r_i, const std::string& fen) {
 }
 
 void Board::loadEnPass(unsigned char& r_i, const std::string& fen) {
-  Logger::debug("Loading en-passant info");
+  Logger::debug("Loading en-passant info...");
 	assert(r_i < fen.size());
   if(fen[r_i] == '-') {
     Logger::debug("No en-passant available");
@@ -191,7 +191,7 @@ void Board::loadEnPass(unsigned char& r_i, const std::string& fen) {
 }
 
 void Board::loadMoves(unsigned char& r_i, const std::string& fen) {
-  Logger::debug("Loading half moves");
+  Logger::debug("Loading half moves...");
 	assert(r_i < fen.size());
 	while (fen[r_i] != ' ') {
 		if (fen[r_i] < '0' || fen[r_i] > '9') {
@@ -207,7 +207,7 @@ void Board::loadMoves(unsigned char& r_i, const std::string& fen) {
 
 	++r_i;
 
-  Logger::debug("Loading full moves");
+  Logger::debug("Loading full moves...");
 	while (r_i < fen.size()) {
 		if (fen[r_i] < '0' || fen[r_i] > '9') {
 			throw FenException("Wrong FEN: Invalid halfMoves");

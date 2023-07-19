@@ -38,7 +38,7 @@ $(CPP_OBJ): create_directories
 		$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp) -o $(OBJ_DIR)/$(notdir $@)
 
 create_directories:
-		@echo "Starting build!"
+		@echo "Starting build..."
 		@test -d $(OBJ_DIR) || mkdir -v -p $(OBJ_DIR)
 
 clean:
