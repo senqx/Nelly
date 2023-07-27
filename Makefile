@@ -19,8 +19,8 @@ OBJ_FILES = $(addprefix $(OBJ_DIR)/, $(notdir $(CXX_OBJ) $(CPP_OBJ)))
 
 # Compiler options
 CXX = g++
-CXXFLAGS += -O3
-CXXFLAGS = -Wall
+CXXFLAGS = -O3
+CXXFLAGS += -Wall
 CXXFLAGS += -Wextra
 
 all: build

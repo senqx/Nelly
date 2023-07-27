@@ -5,72 +5,42 @@
 
 #include <vector>
 
-//! A struct to work with moves.
-struct Move {
-  unsigned char from; //!< Move from this tile.
-  unsigned char to;   //!< Move to this tile.
-  bool isCheck;       //!< Is this move a check?
+#include "move.h"
 
-  //! Default constructor
-  /*!
-   *  Creates an empty (impossible) move.
-   *  Where: from or to coordinates are >=32
-   */
-  Move()
-    : from(-1)
-    , to(-1)
-    , isCheck(0)
-  {}
-
-  Move(unsigned char from, unsigned char to, bool isCheck = 0)
-    : from(from)
-    , to(to)
-    , isCheck(isCheck)
-  {}
+class Pawn {
+public:
+  static std::vector<Move>
+  getValidMoves(const Board* b, const unsigned char pos) noexcept;
 };
 
-//! An interface for all Pieces
-class iPiece {
+class Knight {
 public:
-  //! Every Piece must implement this method (to get its valid moves).
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept = 0;
+  static std::vector<Move>
+  getValidMoves(const Board* b, const unsigned char pos) noexcept;
 };
 
-class Pawn : public iPiece {
+class Bishop {
 public:
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
+  static std::vector<Move>
+  getValidMoves(const Board* b, const unsigned char pos) noexcept;
 };
 
-class Knight : public iPiece {
+class Rook {
 public:
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
+  static std::vector<Move>
+  getValidMoves(const Board* b, const unsigned char pos) noexcept;
 };
 
-class Bishop : public iPiece {
+class Queen {
 public:
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
+  static std::vector<Move>
+  getValidMoves(const Board* b, const unsigned char pos) noexcept;
 };
 
-class Rook : public iPiece {
+class King {
 public:
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
-};
-
-class Queen : public iPiece {
-public:
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
-};
-
-class King : public iPiece {
-public:
-  virtual std::vector<Move>
-  getValidMoves(Board* b, const unsigned char pos) const noexcept override;
+  static std::vector<Move>
+  getValidMoves(const Board* b, const unsigned char pos) noexcept;
 };
 
 #endif

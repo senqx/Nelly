@@ -4,6 +4,10 @@
 #include <cassert>
 #include <exception>
 #include <string>
+#include <vector>
+
+#include "../cpp-logger/logger.h"
+#include "move.h"
 
 class FenException : public std::exception {
   const char* _msg;
@@ -50,13 +54,31 @@ public:
 
   //! Get info for a specific position.
   char getVal(const unsigned char i, const unsigned char j) const noexcept {
-    assert(i < SIZE && j < SIZE);
+    // Guard for out of range cases
+    if (j >= SIZE || i >= SIZE) {
+      // Return question mark, so no statement will pass when called.
+      // if getVal(...) > 'A' will never pass (so 'a' too),
+      // and '?' is not ' ', so this check will never trigger too.
+      return '?';
+    }
     return _board[i * 8 + j];
   }
   char getVal(const unsigned char pos) const noexcept {
-    assert(pos < SIZE * SIZE);
+    // assert(pos < SIZE * SIZE);
+    if (pos >= SIZE * SIZE) {
+      Logger::error("Position out of board's range");
+      exit(1);
+    }
     return _board[pos];
   }
+
+  //! Get castling info
+  unsigned char getCastlesInfo() const noexcept {
+    return _QKqk;
+  }
+
+  //! Get all possible moves of current position
+  std::vector<Move> getValidMoves() const noexcept;
 
   //! Prints the board
   void print() const noexcept;

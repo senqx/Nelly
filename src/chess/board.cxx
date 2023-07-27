@@ -5,6 +5,9 @@
 #include <cassert>
 #include <iostream>
 
+#include "pieces.h"
+#include "move.h"
+
 Board::Board()
   : _board{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
@@ -45,6 +48,104 @@ void Board::loadFen(const std::string& fen) noexcept {
     Logger::error(e.what());
     exit(1);
   }
+}
+
+std::vector<Move> Board::getValidMoves() const noexcept {
+  std::vector<Move> moves;
+  moves.reserve(SIZE * 4);
+
+  for (unsigned int i = 0; i < _pieceCount; ++i) {
+    const unsigned char& pos = _piecePositions[i];
+    const unsigned char& val = _board[pos];
+    switch (val) {
+    case 'p':
+      if (!_isWhitesMove) {
+        const std::vector<Move>& mvs = Pawn::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'P':
+      if (_isWhitesMove) {
+        const std::vector<Move>& mvs = Pawn::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'n':
+      if (!_isWhitesMove) {
+        const std::vector<Move>& mvs = Knight::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'N':
+      if (_isWhitesMove) {
+        const std::vector<Move>& mvs = Knight::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'b':
+      if (!_isWhitesMove) {
+        const std::vector<Move>& mvs = Bishop::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'B':
+      if (_isWhitesMove) {
+        const std::vector<Move>& mvs = Bishop::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'r':
+      if (!_isWhitesMove) {
+        const std::vector<Move>& mvs = Rook::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'R':
+      if (_isWhitesMove) {
+        const std::vector<Move>& mvs = Rook::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'q':
+      if (!_isWhitesMove) {
+        const std::vector<Move>& mvs = Queen::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'Q':
+      if (_isWhitesMove) {
+        const std::vector<Move>& mvs = Queen::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'k':
+      if (!_isWhitesMove) {
+        const std::vector<Move>& mvs = King::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    case 'K':
+      if (_isWhitesMove) {
+        const std::vector<Move>& mvs = King::getValidMoves(this, pos);
+        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
+                     std::make_move_iterator(mvs.end()));
+      }
+      break;
+    }
+  }
+
+  return moves;
 }
 
 void Board::print() const noexcept {
