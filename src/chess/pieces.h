@@ -30,39 +30,45 @@ struct Move {
 };
 
 //! An interface for all Pieces
-class Piece {
+class iPiece {
 public:
   //! Every Piece must implement this method (to get its valid moves).
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept = 0;
 };
 
-class Pawn : public Piece {
+class Pawn : public iPiece {
+public:
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
-class Knight : public Piece {
+class Knight : public iPiece {
+public:
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
-class Bishop : public Piece {
+class Bishop : public iPiece {
+public:
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
-class Rook : public Piece {
+class Rook : public iPiece {
+public:
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
-class Queen : public Piece {
+class Queen : public iPiece {
+public:
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };
 
-class King : public Piece {
+class King : public iPiece {
+public:
   virtual std::vector<Move>
   getValidMoves(Board* b, const unsigned char pos) const noexcept override;
 };

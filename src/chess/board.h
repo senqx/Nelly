@@ -1,6 +1,7 @@
 #ifndef __BOARD__
 #define __BOARD__
 
+#include <cassert>
 #include <exception>
 #include <string>
 
@@ -12,14 +13,15 @@ public:
     : _msg(msg)
   {}
 
-  const char* what() const noexcept { return _msg; }
+  const char* what() const noexcept override { return _msg; }
 };
 
 //! The chess board
 /*!
  *  Must be kept as small as possible,
- *  because we are going to have millions of boards
- *  for each possible move in depth analysis.
+ *  because we are going to have
+ *  millions of instances of boards
+ *  in depth analysis.
  */
 class Board {
 public:
@@ -39,7 +41,7 @@ private:
   unsigned short _fullMoves; //!< The full moves info.
 
 public:
-  //! Default ctor. Creates a completely empty board.
+  //! Default constructor. Creates a completely empty board.
   Board();
 
   //! Updates the board according to FEN.
@@ -47,7 +49,14 @@ public:
                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") noexcept;
 
   //! Get info for a specific position.
-  char getVal(const unsigned char pos) const noexcept;
+  char getVal(const unsigned char i, const unsigned char j) const noexcept {
+    assert(i < SIZE && j < SIZE);
+    return _board[i * 8 + j];
+  }
+  char getVal(const unsigned char pos) const noexcept {
+    assert(pos < SIZE * SIZE);
+    return _board[pos];
+  }
 
   //! Prints the board
   void print() const noexcept;

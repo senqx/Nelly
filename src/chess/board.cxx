@@ -9,8 +9,8 @@ Board::Board()
   : _board{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // Made like this MANUALLY
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // To be 8x8 !(clang-format)
+           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // Did like this MANUALLY
+           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // To be exactly 8x8
            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '} //
@@ -41,15 +41,10 @@ void Board::loadFen(const std::string& fen) noexcept {
     loadCastles(++i, fen);
     loadEnPass(++i, fen);
     loadMoves(++i, fen);
-  } catch (FenException& e) {
+  } catch (const FenException& e) {
     Logger::error(e.what());
     exit(1);
   }
-}
-
-char Board::getVal(const unsigned char pos) const noexcept {
-  assert(pos < SIZE * SIZE);
-  return _board[pos];
 }
 
 void Board::print() const noexcept {
@@ -76,7 +71,7 @@ void Board::print() const noexcept {
 
   for (unsigned char i = 0; i < SIZE; ++i) {
     for (unsigned char j = 0; j < SIZE; ++j) {
-      res[WIDTH + (i * WIDTH * 2) + (j * 4) + 2] = _board[i * SIZE + j];
+      res[WIDTH + (i * WIDTH * 2) + (j * 4) + 2] = _board[i * 8 + j];
     }
   }
 
@@ -88,10 +83,12 @@ void Board::print() const noexcept {
 
 unsigned char Board::place(const std::string& fen) {
   Logger::debug("Starting piece placement...");
+  unsigned char idx = 0;
+
   unsigned char j = 0;
   unsigned char i = 0;
-  for (; i < fen.size(); ++i) {
-    switch (fen[i]) {
+  for (; idx < fen.size(); ++idx) {
+    switch (fen[idx]) {
     case '1':
     case '2':
     case '3':
@@ -100,26 +97,44 @@ unsigned char Board::place(const std::string& fen) {
     case '6':
     case '7':
     case '8':
-      j += fen[i] - '0';
+      j += fen[idx] - '0';
       break;
     case '/':
-      j += bool(j % 8) * (8 - j % 8);
+      ++i;
+      j = 0;
       break;
     case ' ':
-      return i;
-    default:
-      _board[j] = fen[i];
-      _piecePositions[_pieceCount++] = j;
-      const std::string& msg = "Placing " + std::string(1, char(fen[i])) +
-                               " on: " + std::to_string(j);
+      return idx;
+    case 'p':
+    case 'P':
+    case 'n':
+    case 'N':
+    case 'b':
+    case 'B':
+    case 'r':
+    case 'R':
+    case 'q':
+    case 'Q':
+    case 'k':
+    case 'K': {
+      const unsigned char& pos = i * 8 + j;
+      _board[pos] = fen[idx];
+      _piecePositions[_pieceCount++] = pos;
+      const char chessField[2] = {char('a' + j), char('8' - i)};
+      const std::string& msg = "Placing " + std::string(1, char(fen[idx])) +
+                               " on: " + chessField;
       Logger::debug(msg);
       ++j;
+      break;
+    }
+    default:
+      throw FenException("Wrong FEN: Unknown symbol");
     }
   }
 
   Logger::debug("Loaded pieces total count: " + std::to_string(_pieceCount));
-  assert(j == SIZE * SIZE);
-  return i;
+  assert(i * 8 + j == 64);
+  return idx;
 }
 
 void Board::loadWhoseMove(unsigned char& r_i, const std::string& fen) {
