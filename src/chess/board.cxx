@@ -221,7 +221,7 @@ unsigned char Board::place(const std::string& fen) {
       const unsigned char& pos = i * 8 + j;
       _board[pos] = fen[idx];
       _piecePositions[_pieceCount++] = pos;
-      const char chessField[2] = {char('a' + j), char('8' - i)};
+      const char chessField[3] = {char('a' + j), char('8' - i), '\0'};
       const std::string& msg = "Placing " + std::string(1, char(fen[idx])) +
                                " on: " + chessField;
       Logger::debug(msg);
