@@ -4,21 +4,29 @@
 
 #include <cassert>
 #include <iostream>
+#include <list>
 
+#include "chess.h"
 #include "pieces.h"
 #include "move.h"
 
+// Skip outline squares
+static constexpr unsigned int OFFSET = 2 * Board::WIDTH + 1;
+
 Board::Board()
-  : _board{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // Did like this MANUALLY
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', // To be exactly 8x8
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', //
-           ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '} //
-  , _piecePositions{SIZE * SIZE}
-  , _pieceCount(0)
+  : _board{'?', '?', '?', '?', '?', '?', '?', '?', '?', '?', //
+           '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
+           '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', //
+           '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'} //
+  , _piecePositions()
   , _QKqk(0)
   , _isWhitesMove(true)
   , _enPass(-1)
@@ -29,9 +37,9 @@ Board::Board()
 void Board::loadFen(const std::string& fen) noexcept {
   Logger::debug("Loading fen: " + fen);
   try {
-    unsigned char i = place(fen);
+    unsigned int i = place(fen);
     if (i == fen.size()) {
-      Logger::debug("As no additional parameters were given, use defaults");
+      Logger::debug("As no additional parameters were given, using defaults");
       _isWhitesMove = true;
       _QKqk = 0b01010101;
       _enPass = -1;
@@ -50,96 +58,82 @@ void Board::loadFen(const std::string& fen) noexcept {
   }
 }
 
-std::vector<Move> Board::getValidMoves() const noexcept {
-  std::vector<Move> moves;
-  moves.reserve(SIZE * 4);
+std::list<Move> Board::getValidMoves() const noexcept {
+  std::list<Move> moves;
 
-  for (unsigned int i = 0; i < _pieceCount; ++i) {
-    const unsigned char& pos = _piecePositions[i];
-    const unsigned char& val = _board[pos];
+  for (auto it = _piecePositions.begin(); it != _piecePositions.end(); ++it) {
+    const char& val = _board[*it];
     switch (val) {
     case 'p':
       if (!_isWhitesMove) {
-        const std::vector<Move>& mvs = Pawn::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Pawn::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'P':
       if (_isWhitesMove) {
-        const std::vector<Move>& mvs = Pawn::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Pawn::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'n':
       if (!_isWhitesMove) {
-        const std::vector<Move>& mvs = Knight::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Knight::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'N':
       if (_isWhitesMove) {
-        const std::vector<Move>& mvs = Knight::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Knight::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'b':
       if (!_isWhitesMove) {
-        const std::vector<Move>& mvs = Bishop::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Bishop::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'B':
       if (_isWhitesMove) {
-        const std::vector<Move>& mvs = Bishop::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Bishop::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'r':
       if (!_isWhitesMove) {
-        const std::vector<Move>& mvs = Rook::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Rook::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'R':
       if (_isWhitesMove) {
-        const std::vector<Move>& mvs = Rook::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Rook::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'q':
       if (!_isWhitesMove) {
-        const std::vector<Move>& mvs = Queen::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Queen::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'Q':
       if (_isWhitesMove) {
-        const std::vector<Move>& mvs = Queen::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = Queen::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'k':
       if (!_isWhitesMove) {
-        const std::vector<Move>& mvs = King::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = King::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     case 'K':
       if (_isWhitesMove) {
-        const std::vector<Move>& mvs = King::getValidMoves(this, pos);
-        moves.insert(moves.end(), std::make_move_iterator(mvs.begin()),
-                     std::make_move_iterator(mvs.end()));
+        std::list<Move> mvs = King::getValidMoves(this, *it);
+        moves.splice(moves.end(), mvs);
       }
       break;
     }
@@ -149,9 +143,10 @@ std::vector<Move> Board::getValidMoves() const noexcept {
 }
 
 void Board::print() const noexcept {
-  constexpr unsigned char WIDTH = SIZE * 4 + 2;
-  constexpr unsigned char HEIGHT = SIZE * 2 + 1;
-  char res[WIDTH * HEIGHT] = "\
+  constexpr unsigned int SIZE = 8;
+  constexpr unsigned int RES_WIDTH = SIZE * 4 + 2;
+  constexpr unsigned int RES_HEIGHT = SIZE * 2 + 1;
+  char res[RES_WIDTH * RES_HEIGHT] = "\
 +---v---v---v---v---v---v---v---+\n\
 |   |   |   |   |   |   |   |   |\n\
 >---+---+---+---+---+---+---+---<\n\
@@ -170,24 +165,26 @@ void Board::print() const noexcept {
 |   |   |   |   |   |   |   |   |\n\
 +---^---^---^---^---^---^---^---+";
 
-  for (unsigned char i = 0; i < SIZE; ++i) {
-    for (unsigned char j = 0; j < SIZE; ++j) {
-      res[WIDTH + (i * WIDTH * 2) + (j * 4) + 2] = _board[i * 8 + j];
+  for (unsigned int i = 0; i < SIZE; ++i) {
+    for (unsigned int j = 0; j < SIZE; ++j) {
+      res[RES_WIDTH + i * (RES_WIDTH * 2) + j * 4 + 2] =
+          _board[OFFSET + i * WIDTH + j];
     }
   }
 
-  for (unsigned int i = 0; i < WIDTH * HEIGHT; ++i) {
+  for (unsigned int i = 0; i < RES_WIDTH * RES_HEIGHT; ++i) {
     std::cout << res[i];
   }
   std::cout << std::endl;
 }
 
-unsigned char Board::place(const std::string& fen) {
+unsigned int Board::place(const std::string& fen) {
   Logger::debug("Starting piece placement...");
-  unsigned char idx = 0;
+  unsigned int pieceCount = 0;
+  unsigned int idx = 0;
 
-  unsigned char j = 0;
-  unsigned char i = 0;
+  unsigned int j = 0;
+  unsigned int i = 0;
   for (; idx < fen.size(); ++idx) {
     switch (fen[idx]) {
     case '1':
@@ -218,9 +215,10 @@ unsigned char Board::place(const std::string& fen) {
     case 'Q':
     case 'k':
     case 'K': {
-      const unsigned char& pos = i * 8 + j;
-      _board[pos] = fen[idx];
-      _piecePositions[_pieceCount++] = pos;
+      const BoardSquare& sqr = OFFSET + i * WIDTH + j;
+      _board[sqr] = fen[idx];
+      _piecePositions.push_back(sqr);
+      ++pieceCount;
       const char chessField[3] = {char('a' + j), char('8' - i), '\0'};
       const std::string& msg = "Placing " + std::string(1, char(fen[idx])) +
                                " on: " + chessField;
@@ -233,12 +231,12 @@ unsigned char Board::place(const std::string& fen) {
     }
   }
 
-  Logger::debug("Loaded pieces total count: " + std::to_string(_pieceCount));
+  Logger::debug("Loaded pieces total count: " + std::to_string(pieceCount));
   assert(i * 8 + j == 64);
   return idx;
 }
 
-void Board::loadWhoseMove(unsigned char& r_i, const std::string& fen) {
+void Board::loadWhoseMove(unsigned int& r_i, const std::string& fen) {
   Logger::debug("Loading whose move is it...");
   assert(r_i < fen.size());
 
@@ -254,7 +252,7 @@ void Board::loadWhoseMove(unsigned char& r_i, const std::string& fen) {
   ++r_i;
 }
 
-void Board::loadCastles(unsigned char& r_i, const std::string& fen) {
+void Board::loadCastles(unsigned int& r_i, const std::string& fen) {
   Logger::debug("Loading castle status...");
   assert(r_i < fen.size());
   while (fen[r_i] != ' ') {
@@ -286,7 +284,7 @@ void Board::loadCastles(unsigned char& r_i, const std::string& fen) {
   }
 }
 
-void Board::loadEnPass(unsigned char& r_i, const std::string& fen) {
+void Board::loadEnPass(unsigned int& r_i, const std::string& fen) {
   Logger::debug("Loading en-passant info...");
   assert(r_i < fen.size());
   if (fen[r_i] == '-') {
@@ -294,17 +292,14 @@ void Board::loadEnPass(unsigned char& r_i, const std::string& fen) {
     ++r_i;
     return;
   }
-  unsigned char coord = -1;
-  coord += fen[r_i] - 'a';
   ++r_i;
   assert(r_i < fen.size());
-  char enPs[2] = {fen[r_i - 1], fen[r_i]};
-  Logger::debug("En-passant available on " + std::string(enPs));
-  coord += SIZE * (SIZE - (fen[r_i] - '0'));
+  char enPss[2] = {fen[r_i - 1], fen[r_i]};
+  Logger::debug("En-passant available on " + std::string(enPss));
   ++r_i;
 }
 
-void Board::loadMoves(unsigned char& r_i, const std::string& fen) {
+void Board::loadMoves(unsigned int& r_i, const std::string& fen) {
   Logger::debug("Loading half moves...");
   assert(r_i < fen.size());
   while (fen[r_i] != ' ') {

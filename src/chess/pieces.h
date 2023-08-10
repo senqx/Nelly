@@ -5,42 +5,43 @@
 
 #include <vector>
 
+#include "chess.h"
 #include "move.h"
 
 class Pawn {
 public:
-  static std::vector<Move>
-  getValidMoves(const Board* b, const unsigned char pos) noexcept;
+  static std::list<Move>
+  getValidMoves(const Board* b, const BoardSquare s) noexcept;
 };
 
 class Knight {
 public:
-  static std::vector<Move>
-  getValidMoves(const Board* b, const unsigned char pos) noexcept;
+  static std::list<Move>
+  getValidMoves(const Board* b, const BoardSquare s) noexcept;
 };
 
 class Bishop {
 public:
-  static std::vector<Move>
-  getValidMoves(const Board* b, const unsigned char pos) noexcept;
+  static std::list<Move>
+  getValidMoves(const Board* b, const BoardSquare s) noexcept;
 };
 
 class Rook {
 public:
-  static std::vector<Move>
-  getValidMoves(const Board* b, const unsigned char pos) noexcept;
+  static std::list<Move>
+  getValidMoves(const Board* b, const BoardSquare s) noexcept;
 };
 
 class Queen {
 public:
-  static std::vector<Move>
-  getValidMoves(const Board* b, const unsigned char pos) noexcept;
+  static std::list<Move>
+  getValidMoves(const Board* b, const BoardSquare s) noexcept;
 };
 
 class King {
 public:
-  static std::vector<Move>
-  getValidMoves(const Board* b, const unsigned char pos) noexcept;
+  static std::list<Move>
+  getValidMoves(const Board* b, const BoardSquare s) noexcept;
 };
 
 #endif
