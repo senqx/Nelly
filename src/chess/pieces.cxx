@@ -173,14 +173,13 @@ Rook::getValidMoves(const Board* b, const BoardSquare sqr) noexcept {
   Logger::debug("Getting moves for Rook...");
   // Not == 'R' but < 'a' because Queen uses this method
   const bool& isWhite = b->getVal(sqr) < 'a';
-  const char enemy = 'A' + 32 * isWhite;
+  const char& enemy = 'A' + 32 * isWhite;
 
   std::list<Move> moves;
 
   // Vertical
-  constexpr unsigned int vOffset = Board::WIDTH;
-  for(unsigned int i = 0; ; ++i) {
-    const BoardSquare& target = sqr - i * vOffset;
+  for(unsigned int i = 1; ; ++i) {
+    const BoardSquare& target = sqr - i * Board::WIDTH;
     const char& val = b->getVal(target);
     if (val == ' ') {
       moves.push_back(Move(sqr, target));
@@ -191,8 +190,8 @@ Rook::getValidMoves(const Board* b, const BoardSquare sqr) noexcept {
       break;
     }
   }
-  for(unsigned int i = 0; ; ++i) {
-    const BoardSquare& target = sqr + i * vOffset;
+  for(unsigned int i = 1; ; ++i) {
+    const BoardSquare& target = sqr + i * Board::WIDTH;
     const char& val = b->getVal(target);
     if (val == ' ') {
       moves.push_back(Move(sqr, target));
@@ -205,9 +204,8 @@ Rook::getValidMoves(const Board* b, const BoardSquare sqr) noexcept {
   }
 
   // Horizontal
-  constexpr unsigned int hOffset = 1;
-  for(unsigned int i = 0; ; ++i) {
-    const BoardSquare& target = sqr - i * hOffset; // Compiler should ignore *
+  for(unsigned int i = 1; ; ++i) {
+    const BoardSquare& target = sqr - i;
     const char& val = b->getVal(target);
     if (val == ' ') {
       moves.push_back(Move(sqr, target));
@@ -218,8 +216,8 @@ Rook::getValidMoves(const Board* b, const BoardSquare sqr) noexcept {
       break;
     }
   }
-  for(unsigned int i = 0; ; ++i) {
-    const BoardSquare& target = sqr + i * hOffset; // Compiler should ignore *
+  for(unsigned int i = 1; ; ++i) {
+    const BoardSquare& target = sqr + i;
     const char& val = b->getVal(target);
     if (val == ' ') {
       moves.push_back(Move(sqr, target));
