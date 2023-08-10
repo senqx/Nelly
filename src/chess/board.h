@@ -50,6 +50,9 @@ public:
   //! Default constructor. Creates a completely empty board.
   Board();
 
+  //! Default copy constructor works fine for Boards.
+  Board(const Board& b) = default;
+
   //! Updates the board according to FEN.
   void loadFen(const std::string& fen =
                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") noexcept;
