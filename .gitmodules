@@ -1,0 +1,3 @@
+[submodule "src/cpp-logger"]
+	path = src/cpp-logger
+	url = https://github.com/senqx/cpp-logger
