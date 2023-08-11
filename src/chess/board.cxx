@@ -167,6 +167,10 @@ Board Board::makeMove(const Move& move) const noexcept {
       b._pieces.insert({newRookPos, rook});
       b._pieces.erase(rookPos);
     }
+  } else if ((_board[move.from] & 0b11011111) &&
+             (move.from / 10 == (_isWhitesMove? 8: 3)))
+  {
+    b._enPass = move.to + (_isWhitesMove? WIDTH: -WIDTH);
   }
   b._board[move.to] = _board[move.from];
   b._board[move.from] = ' ';
