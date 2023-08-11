@@ -5,6 +5,7 @@
 #include <exception>
 #include <string>
 #include <list>
+#include <unordered_map>
 
 #include "../cpp-logger/logger.h"
 #include "chess.h"
@@ -35,8 +36,8 @@ public:
   static constexpr unsigned int WIDTH = 10;
 
 private:
-  char _board[HEIGHT * WIDTH];            //!< Contains the board info.
-  std::list<BoardSquare> _piecePositions; //!< The pieces' position array.
+  char _board[HEIGHT * WIDTH];                   //!< The board info.
+  std::unordered_map<BoardSquare, char> _pieces; //!< The pieces info.
 
   unsigned char _QKqk;       //!< The castle info: 2 bits [QKqk]
                              //!< White: [Q]ueen-side [K]ing-side
@@ -82,7 +83,10 @@ public:
   //! Get all valid moves of current position
   std::list<Move> getValidMoves() const noexcept;
 
-  //! Prints the board
+  //! Make a move
+  Board makeMove(const Move& move) const noexcept;
+
+  //! Print the board
   void print() const noexcept;
 
 private:

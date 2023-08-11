@@ -3,6 +3,8 @@
 
 #include "chess.h"
 
+#include <string>
+
 //! A struct to work with moves.
 struct Move {
   BoardSquare from; //!< Move from this tile.
@@ -25,6 +27,19 @@ struct Move {
     , to(to)
     , isCheck(isCheck)
   {}
+
+  std::string toString() const noexcept {
+    const BoardSquare& from_i = from / 10 - 2;
+    const BoardSquare& from_j = from % 10 - 1;
+    const BoardSquare& to_i = to / 10 - 2;
+    const BoardSquare& to_j = to % 10 - 1;
+    std::string str = "a0->a0";
+    str[0] += from_j;
+    str[1] += 8 - from_i;
+    str[4] += to_j;
+    str[5] += 8 - to_i;
+    return str;
+  }
 };
 
 #endif

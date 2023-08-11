@@ -5,6 +5,7 @@
 #include <cassert>
 #include <iostream>
 #include <list>
+#include <unordered_map>
 
 #include "chess.h"
 #include "pieces.h"
@@ -26,7 +27,7 @@ Board::Board()
            '?', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '?', //
            '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', //
            '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'} //
-  , _piecePositions()
+  , _pieces()
   , _QKqk(0)
   , _isWhitesMove(true)
   , _enPass(-1)
@@ -61,78 +62,79 @@ void Board::loadFen(const std::string& fen) noexcept {
 std::list<Move> Board::getValidMoves() const noexcept {
   std::list<Move> moves;
 
-  for (auto it = _piecePositions.begin(); it != _piecePositions.end(); ++it) {
-    const char& val = _board[*it];
+  for (auto it = _pieces.begin(); it != _pieces.end(); ++it) {
+    const BoardSquare& sqr = it->first;
+    const char& val = _board[sqr];
     switch (val) {
     case 'p':
       if (!_isWhitesMove) {
-        std::list<Move> mvs = Pawn::getValidMoves(this, *it);
+        std::list<Move> mvs = Pawn::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'P':
       if (_isWhitesMove) {
-        std::list<Move> mvs = Pawn::getValidMoves(this, *it);
+        std::list<Move> mvs = Pawn::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'n':
       if (!_isWhitesMove) {
-        std::list<Move> mvs = Knight::getValidMoves(this, *it);
+        std::list<Move> mvs = Knight::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'N':
       if (_isWhitesMove) {
-        std::list<Move> mvs = Knight::getValidMoves(this, *it);
+        std::list<Move> mvs = Knight::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'b':
       if (!_isWhitesMove) {
-        std::list<Move> mvs = Bishop::getValidMoves(this, *it);
+        std::list<Move> mvs = Bishop::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'B':
       if (_isWhitesMove) {
-        std::list<Move> mvs = Bishop::getValidMoves(this, *it);
+        std::list<Move> mvs = Bishop::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'r':
       if (!_isWhitesMove) {
-        std::list<Move> mvs = Rook::getValidMoves(this, *it);
+        std::list<Move> mvs = Rook::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'R':
       if (_isWhitesMove) {
-        std::list<Move> mvs = Rook::getValidMoves(this, *it);
+        std::list<Move> mvs = Rook::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'q':
       if (!_isWhitesMove) {
-        std::list<Move> mvs = Queen::getValidMoves(this, *it);
+        std::list<Move> mvs = Queen::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'Q':
       if (_isWhitesMove) {
-        std::list<Move> mvs = Queen::getValidMoves(this, *it);
+        std::list<Move> mvs = Queen::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'k':
       if (!_isWhitesMove) {
-        std::list<Move> mvs = King::getValidMoves(this, *it);
+        std::list<Move> mvs = King::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
     case 'K':
       if (_isWhitesMove) {
-        std::list<Move> mvs = King::getValidMoves(this, *it);
+        std::list<Move> mvs = King::getValidMoves(this, sqr);
         moves.splice(moves.end(), mvs);
       }
       break;
@@ -140,6 +142,36 @@ std::list<Move> Board::getValidMoves() const noexcept {
   }
 
   return moves;
+}
+
+Board Board::makeMove(const Move& move) const noexcept {
+  Board b = *this;
+  b._isWhitesMove ^= 1;
+  if (const char& val = _board[move.to];
+      val != ' ')
+  {
+    // Check if it is a capture
+    const char& enemy = 'A' + 32 * _isWhitesMove;
+    if (val > enemy && val < enemy + ('Z' - 'A')) {
+      b._pieces.erase(move.to);
+    } else if (const char& who = _board[move.from];
+              (who == 'K' || who == 'k'))
+    {
+      const int& diff = move.to - move.from;
+      if (diff == -2 || diff == 2) {
+        const BoardSquare& rookPos = move.from + ((diff > 0)? 3 : -4);
+        const BoardSquare& newRookPos = move.to - 1 + (diff < 0) * 2;
+        const char& rook = _isWhitesMove? 'R' : 'r';
+        b._board[newRookPos] = rook;
+        b._board[rookPos] = ' ';
+        b._pieces.insert({newRookPos, rook});
+        b._pieces.erase(rookPos);
+      }
+    }
+  }
+  b._board[move.to] = _board[move.from];
+  b._board[move.from] = ' ';
+  return b;
 }
 
 void Board::print() const noexcept {
@@ -186,7 +218,8 @@ unsigned int Board::place(const std::string& fen) {
   unsigned int j = 0;
   unsigned int i = 0;
   for (; idx < fen.size(); ++idx) {
-    switch (fen[idx]) {
+    const char& val = fen[idx];
+    switch (val) {
     case '1':
     case '2':
     case '3':
@@ -195,7 +228,7 @@ unsigned int Board::place(const std::string& fen) {
     case '6':
     case '7':
     case '8':
-      j += fen[idx] - '0';
+      j += val - '0';
       break;
     case '/':
       ++i;
@@ -216,11 +249,11 @@ unsigned int Board::place(const std::string& fen) {
     case 'k':
     case 'K': {
       const BoardSquare& sqr = OFFSET + i * WIDTH + j;
-      _board[sqr] = fen[idx];
-      _piecePositions.push_back(sqr);
+      _board[sqr] = val;
+      _pieces.insert({sqr, val});
       ++pieceCount;
       const char chessField[3] = {char('a' + j), char('8' - i), '\0'};
-      const std::string& msg = "Placing " + std::string(1, char(fen[idx])) +
+      const std::string& msg = "Placing " + std::string(1, val) +
                                " on: " + chessField;
       Logger::debug(msg);
       ++j;
