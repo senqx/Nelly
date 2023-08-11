@@ -1,0 +1,35 @@
+# Run manually to reformat a file:
+# clang-format -i --style=file <file>
+
+  # (Risky) InsertBraces:                       true
+  # (v. 16) InsertNewlineAtEOF:                 true
+AccessModifierOffset:               -2
+AlignAfterOpenBracket:              Align
+AlignOperands:                      Align
+AlignTrailingComments:              true
+AllowAllArgumentsOnNextLine:        false
+AllowShortCaseLabelsOnASingleLine:  false
+AlwaysBreakBeforeMultilineStrings:  false
+AlwaysBreakTemplateDeclarations:    Yes
+BinPackArguments:                   true
+BinPackParameters:                  true
+BreakBeforeBraces:                  Attach
+BreakBeforeConceptDeclarations:     Always
+BreakBeforeTernaryOperators:        true
+BreakConstructorInitializers:       BeforeComma
+BreakInheritanceList:               BeforeComma
+BreakStringLiterals:                false
+ColumnLimit:                        80
+CompactNamespaces:                  false
+ConstructorInitializerIndentWidth:  2
+Cpp11BracedListStyle:               true
+EmptyLineAfterAccessModifier:       Never
+EmptyLineBeforeAccessModifier:      Always
+FixNamespaceComments:               true
+IncludeBlocks:                      Regroup
+PackConstructorInitializers:        Never
+PenaltyReturnTypeOnItsOwnLine:      1
+PointerAlignment:                   Left
+SortIncludes:                       true
+SpaceBeforeCtorInitializerColon:    true
+SpacesBeforeTrailingComments:       1
