@@ -32,6 +32,12 @@ Pawn::getValidMoves(const Board* b, const BoardSquare sqr) noexcept {
     {
       moves.push_back(Move(sqr, sqr - (Board::WIDTH + 1)));
     }
+    if (const BoardSquare& enPass = b->getEnPass();
+        (sqr - (b->WIDTH + 1) == enPass) ||
+        (sqr - (b->WIDTH - 1) == enPass))
+    {
+      moves.push_back(Move(sqr, enPass));
+    }
   } else {
     if (b->getVal(sqr + Board::WIDTH) == ' ') {
       moves.push_back(Move(sqr, sqr + Board::WIDTH));
@@ -48,6 +54,12 @@ Pawn::getValidMoves(const Board* b, const BoardSquare sqr) noexcept {
         val > enemy && val < enemy + ('Z' - 'A'))
     {
       moves.push_back(Move(sqr, sqr + (Board::WIDTH + 1)));
+    }
+    if (const BoardSquare& enPass = b->getEnPass();
+        (sqr + (b->WIDTH + 1) == enPass) ||
+        (sqr + (b->WIDTH - 1) == enPass))
+    {
+      moves.push_back(Move(sqr, enPass));
     }
   }
   return moves;

@@ -30,7 +30,7 @@ Board::Board()
   , _pieces()
   , _QKqk(0)
   , _isWhitesMove(true)
-  , _enPass(-1)
+  , _enPass(0)
   , _halfMoves(0)
   , _fullMoves(0)
 {}
@@ -43,7 +43,7 @@ void Board::loadFen(const std::string& fen) noexcept {
       Logger::debug("As no additional parameters were given, using defaults");
       _isWhitesMove = true;
       _QKqk = 0b01010101;
-      _enPass = -1;
+      _enPass = 0;
       _halfMoves = 0;
       _fullMoves = 1;
       return;
@@ -154,6 +154,12 @@ Board Board::makeMove(const Move& move) const noexcept {
     const char& enemy = 'A' + 32 * _isWhitesMove;
     if (val > enemy && val < enemy + ('Z' - 'A')) {
       b._pieces.erase(move.to);
+    } else if (move.to == _enPass) {
+      const BoardSquare& enemyPawnSqr =
+        move.to + (_isWhitesMove? WIDTH: -WIDTH);
+      b._board[enemyPawnSqr] = ' ';
+      b._pieces.erase(enemyPawnSqr);
+      b._enPass = 0;
     } else if (const char& who = _board[move.from];
               (who == 'K' || who == 'k'))
     {
@@ -322,12 +328,16 @@ void Board::loadEnPass(unsigned int& r_i, const std::string& fen) {
   assert(r_i < fen.size());
   if (fen[r_i] == '-') {
     Logger::debug("No en-passant available");
+    _enPass = 0;
     ++r_i;
     return;
   }
   ++r_i;
   assert(r_i < fen.size());
-  char enPss[2] = {fen[r_i - 1], fen[r_i]};
+  const char enPss[2] = {fen[r_i - 1], fen[r_i]};
+  _enPass = OFFSET + WIDTH * 5             // EnPass is only be on 6 or 3!
+            + fen[r_i - 1] - 'a'           // Which file?
+            - (WIDTH * 3 * _isWhitesMove); // 6th or 3rd line?
   Logger::debug("En-passant available on " + std::string(enPss));
   ++r_i;
 }

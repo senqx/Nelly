@@ -80,6 +80,11 @@ public:
     return _QKqk;
   }
 
+  //! Get En passant square
+  BoardSquare getEnPass() const noexcept {
+    return _enPass;
+  }
+
   //! Get all valid moves of current position
   std::list<Move> getValidMoves() const noexcept;
 
