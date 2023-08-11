@@ -146,37 +146,31 @@ std::list<Move> Board::getValidMoves() const noexcept {
 
 Board Board::makeMove(const Move& move) const noexcept {
   Board b = *this;
-  b._isWhitesMove ^= 1;
-  if (const char& val = _board[move.to];
-      val != ' ')
+  if (_board[move.to] != ' ')
   {
-    // Check if it is a capture
-    const char& enemy = 'A' + 32 * _isWhitesMove;
-    if (val > enemy && val < enemy + ('Z' - 'A')) {
-      b._pieces.erase(move.to);
-    } else if (move.to == _enPass) {
-      const BoardSquare& enemyPawnSqr =
-        move.to + (_isWhitesMove? WIDTH: -WIDTH);
-      b._board[enemyPawnSqr] = ' ';
-      b._pieces.erase(enemyPawnSqr);
-      b._enPass = 0;
-    } else if (const char& who = _board[move.from];
-              (who == 'K' || who == 'k'))
-    {
-      const int& diff = move.to - move.from;
-      if (diff == -2 || diff == 2) {
-        const BoardSquare& rookPos = move.from + ((diff > 0)? 3 : -4);
-        const BoardSquare& newRookPos = move.to - 1 + (diff < 0) * 2;
-        const char& rook = _isWhitesMove? 'R' : 'r';
-        b._board[newRookPos] = rook;
-        b._board[rookPos] = ' ';
-        b._pieces.insert({newRookPos, rook});
-        b._pieces.erase(rookPos);
-      }
+    b._pieces.erase(move.to);
+  } else if (move.to == _enPass) {
+    const BoardSquare& enemyPawnSqr =
+      move.to + (_isWhitesMove? WIDTH: -WIDTH);
+    std::cout << (int)enemyPawnSqr << std::endl;
+    b._board[enemyPawnSqr] = ' ';
+    b._pieces.erase(enemyPawnSqr);
+    b._enPass = 0;
+  } else if ((_board[move.from] & 0b11011111) == 'K') {
+    const int& diff = move.to - move.from;
+    if (diff == -2 || diff == 2) {
+      const BoardSquare& rookPos = move.from + ((diff > 0)? 3 : -4);
+      const BoardSquare& newRookPos = move.to - 1 + (diff < 0) * 2;
+      const char& rook = _isWhitesMove? 'R' : 'r';
+      b._board[newRookPos] = rook;
+      b._board[rookPos] = ' ';
+      b._pieces.insert({newRookPos, rook});
+      b._pieces.erase(rookPos);
     }
   }
   b._board[move.to] = _board[move.from];
   b._board[move.from] = ' ';
+  b._isWhitesMove ^= 1;
   return b;
 }
 
@@ -334,7 +328,7 @@ void Board::loadEnPass(unsigned int& r_i, const std::string& fen) {
   }
   ++r_i;
   assert(r_i < fen.size());
-  const char enPss[2] = {fen[r_i - 1], fen[r_i]};
+  const char enPss[3] = {fen[r_i - 1], fen[r_i], 0};
   _enPass = OFFSET + WIDTH * 5             // EnPass is only be on 6 or 3!
             + fen[r_i - 1] - 'a'           // Which file?
             - (WIDTH * 3 * _isWhitesMove); // 6th or 3rd line?

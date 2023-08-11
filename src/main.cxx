@@ -7,7 +7,7 @@
 #include "cpp-logger/logger.h"
 
 int main(int argc, char* argv[]) {
-  // Logger::set_mode("debug");
+  Logger::set_mode("debug");
   Logger::set_terminal_output(true);
   Logger::info("Running Nelly v0.0.1");
 
