@@ -9,7 +9,12 @@
   [![Build][build-badge]][build-link]
   [![License][license-badge]][license-link]
   <br>
-
+  No working versions yet. README.md will be updated after first version release.
 </div>
 
-No working versions yet. README.md will be updated after first version release.
+
+[build-link]:         https://github.com/senqx/Nelly
+[license-link]:       https://github.com/senqx/Nelly/blob/main/Copying.txt
+
+[build-badge]:        https://img.shields.io/badge/Nelly-No%20available%20version-red?style=for-the-badge
+[license-badge]:      https://img.shields.io/badge/License-GPLv3.0-green?style=for-the-badge
