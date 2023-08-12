@@ -2,13 +2,13 @@
 
   <h3>Nelly</h3>
 
-  A free and strong UCI chess engine.
+  A free and open source UCI chess engine.
   <br>
-  <br>
-
+  
   [![Build][build-badge]][build-link]
   [![License][license-badge]][license-link]
   <br>
+  
   No working versions yet. README.md will be updated after first version release.
 </div>
 
