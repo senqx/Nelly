@@ -28,7 +28,7 @@
 #include "pieces.h"
 #include "move.h"
 
-// Skip outline squares
+//! Offset to skip outline squares.
 static constexpr unsigned int OFFSET = 2 * Board::WIDTH + 1;
 
 Board::Board()
