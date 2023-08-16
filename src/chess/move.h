@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #ifndef __CHESS_MOVE__
 #define __CHESS_MOVE__
 
@@ -26,12 +27,12 @@
 struct Move {
   BoardSquare from; //!< Move from this tile.
   BoardSquare to;   //!< Move to this tile.
-  bool isCheck;    //!< Is this move a check?
+  bool isCheck;     //!< Is this move a check?
 
   //! Default constructor
   /*!
    *  Creates an empty (impossible) move.
-   *  Where: from or to coordinates are not valid
+   *  Where: from or to coordinates are not valid.
    */
   Move()
     : from(0)
@@ -39,11 +40,17 @@ struct Move {
     , isCheck(0)
   {}
 
+  //! Construct a move manually.
   Move(const BoardSquare from, const BoardSquare to, const bool isCheck = 0)
     : from(from)
     , to(to)
     , isCheck(isCheck)
   {}
+
+  //! Set isCheck field (Sets to true by default).
+  void setCheck(const bool val = true) noexcept {
+    isCheck = val;
+  }
 
   std::string toString() const noexcept {
     const BoardSquare& from_i = from / 10 - 2;
