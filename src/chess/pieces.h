@@ -19,12 +19,12 @@
 #ifndef __PIECES__
 #define __PIECES__
 
-#include "board.h"
-
 #include <vector>
 
 #include "chess.h"
 #include "move.h"
+
+class Board;
 
 class Pawn {
 public:
