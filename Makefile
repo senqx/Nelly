@@ -7,13 +7,13 @@ BIN_DIR = bin
 OBJ_DIR = $(BIN_DIR)/obj
 
 # Getting all source files (relative names)
-CXX_SRC = $(wildcard $(SRC_DIR)/*.cxx)
-CXX_SRC += $(wildcard $(SRC_DIR)/**/*.cxx)
+#CXX_SRC = $(wildcard $(SRC_DIR)/*.cxx)
+#CXX_SRC += $(wildcard $(SRC_DIR)/**/*.cxx)
 CPP_SRC = $(wildcard $(SRC_DIR)/*.cpp)
 CPP_SRC += $(wildcard $(SRC_DIR)/**/*.cpp)
 
 # Generating object file names from source files (path/to/main.cxx -> main.o)
-CXX_OBJ = $(CXX_SRC:.cxx=.o)
+#CXX_OBJ = $(CXX_SRC:.cxx=.o)
 CPP_OBJ = $(CPP_SRC:.cpp=.o)
 OBJ_FILES = $(addprefix $(OBJ_DIR)/, $(notdir $(CXX_OBJ) $(CPP_OBJ)))
 

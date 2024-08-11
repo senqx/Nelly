@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <list>
 
 #include "chess/board.h"
@@ -39,11 +38,12 @@ int main(int argc, char* argv[]) {
 
   const std::list<Move>& moves = b.getValidMoves();
   Logger::info("Total move count: " + std::to_string(moves.size()));
-  for (auto it = moves.begin(); it != moves.end(); ++it) {
-    const std::string& mv = b.getVal(it->from) + it->toString();
-    const Board& boardAfterMove = b.makeMove(*it);
+  for (const Move& move : moves) {
+    const std::string& mv = b.getVal(move.from) + move.toString();
+    const Board& boardAfterMove = b.makeMove(move);
     Logger::info("Made the move " + mv);
     boardAfterMove.print();
   }
+
 	return 0;
 }

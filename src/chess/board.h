@@ -23,11 +23,10 @@
 #include <exception>
 #include <string>
 #include <list>
-#include <unordered_map>
 
-#include "../cpp-logger/logger.h"
 #include "chess.h"
-#include "move.h"
+
+class Move;
 
 //! Exception class for handling issues caused by FEN parsing
 class FenException : public std::exception {
@@ -53,17 +52,39 @@ public:
   static constexpr unsigned int HEIGHT = 12;
   static constexpr unsigned int WIDTH = 10;
 
-private:
-  char _board[HEIGHT * WIDTH];                   //!< The board info.
-  std::unordered_map<BoardSquare, char> _pieces; //!< The pieces info.
+  enum class Notation : char
+  {
+    WhitePawn = 'P',
+    WhiteKnight = 'N',
+    WhiteBishop = 'B',
+    WhiteRook = 'R',
+    WhiteQueen = 'Q',
+    WhiteKing = 'K',
+    BlackPawn = 'p',
+    BlackKnight = 'n',
+    BlackBishop = 'b',
+    BlackRook = 'r',
+    BlackQueen = 'q',
+    BlackKing = 'k',
 
-  unsigned char _QKqk;       //!< The castle info: 2 bits [QKqk]
-                             //!< White: [Q]ueen-side [K]ing-side
-                             //!< Black: [q]ueen-side [k]ing-side
-  bool _isWhitesMove;        //!< Whose move is it?
-  BoardSquare _enPass;       //!< Position of the en-passant.
-  unsigned char _halfMoves;  //!< The half moves info.
-  unsigned short _fullMoves; //!< The full moves info.
+    Empty = ' ',
+    Invalid = '?'
+  };
+
+private:
+  // Trying to keep memory efficiency,
+  // As we are going to create millions of Board objects.
+  char m_board[HEIGHT * WIDTH]; //!< The board info.
+  BoardSquare m_pieces[32];     //!< The pieces info.
+  unsigned char m_pieceCount;   //!< The count of pieces on the board;
+
+  unsigned char m_castleInfo; //!< The castle info: binary [_Q_K_q_k]
+                              // White: [Q]ueen-side [K]ing-side
+                              // Black: [q]ueen-side [k]ing-side
+  bool m_isWhitesMove;        //!< Whose move is it?
+  BoardSquare m_enPass;       //!< Position of the en-passant.
+  unsigned char m_halfMoves;  //!< The half moves info.
+  unsigned short m_fullMoves; //!< The full moves info.
 
 public:
   //! Default constructor. Creates a completely empty board.
@@ -72,9 +93,85 @@ public:
   //! Default copy constructor works fine for Boards.
   Board(const Board& b) = default;
 
+public:
   //! Updates the board according to FEN.
   void loadFen(const std::string& fen =
                    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") noexcept;
+
+  //! Make a move.
+  Board makeMove(const Move& move) const noexcept;
+
+  //! Get castling info
+  bool canWhiteLongCastle() const noexcept {
+    return m_castleInfo & 0b01000000;
+  }
+
+  bool canWhiteShortCastle() const noexcept {
+    return m_castleInfo & 0b00010000;
+  }
+
+  bool canBlackLongCastle() const noexcept {
+    return m_castleInfo & 0b00000100;
+  }
+
+  bool canBlackShortCastle() const noexcept {
+    return m_castleInfo & 0b00000001;
+  }
+
+  //! Is the provided square in [a1 to h8] range?
+  bool isValid(const BoardSquare& sqr) const noexcept {
+    return m_board[sqr] != '?';
+  }
+
+  //! Is the provided square empty? Returns false for invalid square.
+  bool isEmpty(const BoardSquare& sqr) const noexcept {
+    return m_board[sqr] == ' ';
+  }
+
+  bool isWhitesMove() const noexcept {
+    return m_isWhitesMove;
+  }
+
+  bool isEnemyPiece(const BoardSquare& sqr) const noexcept {
+    return !isEmpty(sqr) && (isWhite(sqr) ^ m_isWhitesMove);
+  }
+
+  bool isEnPass(const BoardSquare& sqr) const noexcept {
+    return m_enPass == sqr;
+  }
+
+  //! @returns true if the piece on provided square is white.
+  /*!
+   *  Note: the provided square must be valid and non empty.
+   */
+  bool isWhite(const BoardSquare& sqr) const noexcept {
+    return !(m_board[sqr] & 0b00100000);
+  }
+
+  //! Checks for specific piece on the provided square.
+  bool isPawn(const BoardSquare& sqr) const noexcept {
+    return (m_board[sqr] & 0b11011111) == 'P';
+  }
+
+  bool isKnight(const BoardSquare& sqr) const noexcept {
+    return (m_board[sqr] & 0b11011111) == 'N';
+  }
+
+  bool isBishop(const BoardSquare& sqr) const noexcept {
+    return (m_board[sqr] & 0b11011111) == 'B';
+  }
+
+  bool isRook(const BoardSquare& sqr) const noexcept {
+    return (m_board[sqr] & 0b11011111) == 'R';
+  }
+
+  bool isQueen(const BoardSquare& sqr) const noexcept {
+    return (m_board[sqr] & 0b11011111) == 'Q';
+  }
+
+  bool isKing(const BoardSquare& sqr) const noexcept {
+    return (m_board[sqr] & 0b11011111) == 'K';
+  }
 
   //! Get info for a specific position.
   /*
@@ -83,37 +180,29 @@ public:
    *  @returns '?' if oulinie
    */
   char getVal(const BoardSquare sqr) const noexcept {
-    assert(sqr < WIDTH * HEIGHT);
-    /*
-    if (sqr >= WIDTH * HEIGHT) {
-      Logger::error("Trying to access a square out of board's range");
-      exit(1);
-    }
-    */
-    return _board[sqr];
+    assert(sqr < WIDTH * HEIGHT && "Trying to access an out of range square");
+    return m_board[sqr];
   }
 
-  //! Get castling info
-  unsigned char getCastlesInfo() const noexcept {
-    return _QKqk;
-  }
-
-  //! Get En passant square
+  //! Get En passant square.
   BoardSquare getEnPass() const noexcept {
-    return _enPass;
+    return m_enPass;
   }
 
-  //! Get all valid moves of current position
+  //! Get all valid moves of current position.
   std::list<Move> getValidMoves() const noexcept;
 
-  //! Make a move
-  Board makeMove(const Move& move) const noexcept;
+  //! Get all valid moves of the provided piece.
+  std::list<Move> getValidMoves(const BoardSquare& sqr) const noexcept;
 
-  //! Print the board
+  //! Print the board.
   void print() const noexcept;
 
 private:
-  //! Place pieces based on FEN
+  //! Capture a piece.
+  void capture(const BoardSquare& sqr) noexcept;
+
+  //! Place pieces based on FEN.
   /*!
    *  Parses only placement part of the FEN.
    *  @returns the index of the FEN string where it stopped.

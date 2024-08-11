@@ -19,47 +19,41 @@
 #ifndef __PIECES__
 #define __PIECES__
 
-#include <vector>
+#include <list>
 
 #include "chess.h"
-#include "move.h"
 
+class Move;
 class Board;
 
-class Pawn {
-public:
+struct Pawn {
   static std::list<Move>
-  getValidMoves(const Board* b, const BoardSquare s) noexcept;
+    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
-class Knight {
-public:
+struct Knight {
   static std::list<Move>
-  getValidMoves(const Board* b, const BoardSquare s) noexcept;
+    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
-class Bishop {
-public:
+struct Bishop {
   static std::list<Move>
-  getValidMoves(const Board* b, const BoardSquare s) noexcept;
+    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
-class Rook {
-public:
+struct Rook {
   static std::list<Move>
-  getValidMoves(const Board* b, const BoardSquare s) noexcept;
+    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
-class Queen {
-public:
+struct Queen {
   static std::list<Move>
-  getValidMoves(const Board* b, const BoardSquare s) noexcept;
+    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
-class King {
-public:
+struct King {
   static std::list<Move>
-  getValidMoves(const Board* b, const BoardSquare s) noexcept;
+    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
 #endif
