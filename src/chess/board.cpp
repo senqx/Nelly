@@ -135,13 +135,14 @@ std::list<Move> Board::getValidMoves() const noexcept {
   return moves;
 }
 
-void Board::capture(const BoardSquare& sqr) noexcept {
+void Board::removePiece(const BoardSquare& sqr) noexcept {
   for (int i = 0; i < m_pieceCount; ++i) {
     if (m_pieces[i] == sqr) {
       m_pieces[i] = 0;
+      m_board[sqr] = ' ';
       --m_pieceCount;
       std::swap(m_pieces[i], m_pieces[m_pieceCount]);
-      break;
+      return;
     }
   }
 }
@@ -152,11 +153,10 @@ Board Board::makeMove(const Move& move) const noexcept {
 
   if (!board.isEmpty(move.to))
   {
-    board.capture(move.to);
+    board.removePiece(move.to);
   } else if (move.to == m_enPass) {
-    const BoardSquare& enemyPawnSqr =
-      move.to + (m_isWhitesMove? WIDTH : -WIDTH);
-    board.capture(enemyPawnSqr);
+    const BoardSquare& enemyPawnSqr = move.to + (m_isWhitesMove? WIDTH : -WIDTH);
+    board.removePiece(enemyPawnSqr);
     board.m_enPass = 0;
   } else if (isKing(move.from)) {
     const int diff = move.to - move.from;

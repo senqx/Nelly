@@ -75,7 +75,7 @@ private:
   // Trying to keep memory efficiency,
   // As we are going to create millions of Board objects.
   char m_board[HEIGHT * WIDTH]; //!< The board info.
-  BoardSquare m_pieces[32];     //!< The pieces info.
+  BoardSquare m_pieces[32];     //!< The pieces' coordnates (0-es in the end).
   unsigned char m_pieceCount;   //!< The count of pieces on the board;
 
   unsigned char m_castleInfo; //!< The castle info: binary [_Q_K_q_k]
@@ -145,6 +145,7 @@ public:
    *  Note: the provided square must be valid and non empty.
    */
   bool isWhite(const BoardSquare& sqr) const noexcept {
+    assert(m_board[sqr] != ' ' || m_board[sqr] != '?');
     return !(m_board[sqr] & 0b00100000);
   }
 
@@ -199,8 +200,8 @@ public:
   void print() const noexcept;
 
 private:
-  //! Capture a piece.
-  void capture(const BoardSquare& sqr) noexcept;
+  //! Remove a piece from the board.
+  void removePiece(const BoardSquare& sqr) noexcept;
 
   //! Place pieces based on FEN.
   /*!
