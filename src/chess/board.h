@@ -123,6 +123,13 @@ public:
     return m_board[sqr] != '?';
   }
 
+  bool isShortCastleAvailable() const noexcept {
+    return m_castleInfo & 0b00010001;
+  }
+
+  bool isLongCastleAvailable() const noexcept {
+    return m_castleInfo & 0b01000100;
+  }
   //! Is the provided square empty? Returns false for invalid square.
   bool isEmpty(const BoardSquare& sqr) const noexcept {
     return m_board[sqr] == ' ';

@@ -36,7 +36,7 @@ std::list<Move> Pawn::getValidMoves(const Board* p_board,
     if (p_board->isEmpty(sqr + forward)) {
       moves.push_back(Move(sqr, sqr + forward));
 
-      if ((sqr / 10 == (2 + p_board->isWhitesMove() * 6)) &&
+      if ((sqr / 10 == (3 + p_board->isWhitesMove() * 5)) &&
            p_board->isEmpty(sqr + 2 * forward))
       {
         moves.push_back(Move(sqr, sqr + 2 * forward));
@@ -269,17 +269,17 @@ std::list<Move> King::getValidMoves(const Board* p_board,
       }
     }
 
-    if ((p_board->canWhiteShortCastle() || p_board->canBlackShortCastle()) &&
-        (p_board->isEmpty(sqr + 1)) && // Is also not under attack.
-        (p_board->isEmpty(sqr + 2)))
+    if (p_board->isShortCastleAvailable() &&
+        p_board->isEmpty(sqr + 1) && // Is also not under attack.
+        p_board->isEmpty(sqr + 2))
     {
       moves.push_back(Move(sqr, sqr + 2));
     }
 
-    if ((p_board->canWhiteLongCastle() || p_board->canBlackLongCastle()) &&
-        (p_board->isEmpty(sqr - 1)) && // Is also not under attack.
-        (p_board->isEmpty(sqr - 2)) &&
-        (p_board->isEmpty(sqr - 3)))
+    if (p_board->isLongCastleAvailable() &&
+        p_board->isEmpty(sqr - 1) && // Is also not under attack.
+        p_board->isEmpty(sqr - 2) &&
+        p_board->isEmpty(sqr - 3))
     {
       moves.push_back(Move(sqr, sqr - 2));
     }
