@@ -76,15 +76,15 @@ private:
   // As we are going to create millions of Board objects.
   char m_board[HEIGHT * WIDTH]; //!< The board info.
   BoardSquare m_pieces[32];     //!< The pieces' coordnates (0-es in the end).
-  unsigned char m_pieceCount;   //!< The count of pieces on the board;
+  BoardSquare m_enPass;         //!< Position of the en-passant.
 
-  unsigned char m_castleInfo; //!< The castle info: binary [_Q_K_q_k]
-                              // White: [Q]ueen-side [K]ing-side
-                              // Black: [q]ueen-side [k]ing-side
-  bool m_isWhitesMove;        //!< Whose move is it?
-  BoardSquare m_enPass;       //!< Position of the en-passant.
-  unsigned char m_halfMoves;  //!< The half moves info.
-  unsigned short m_fullMoves; //!< The full moves info.
+  struct {
+    unsigned m_pieceCount : 6;    //!< The count of pieces on the board;
+    unsigned m_castleInfo : 4;    //!< The castle info: binary [QKqk]
+    unsigned m_isWhitesMove : 1;  //!< Whose move is it?
+    unsigned m_halfMoves : 7;     //!< The half moves info.
+    unsigned m_fullMoves : 16;    //!< The full moves info.
+  } m_flags;
 
 public:
   //! Default constructor. Creates a completely empty board.
@@ -103,19 +103,19 @@ public:
 
   //! Get castling info
   bool canWhiteLongCastle() const noexcept {
-    return m_castleInfo & 0b01000000;
+    return m_flags.m_castleInfo & 0b1000;
   }
 
   bool canWhiteShortCastle() const noexcept {
-    return m_castleInfo & 0b00010000;
+    return m_flags.m_castleInfo & 0b0100;
   }
 
   bool canBlackLongCastle() const noexcept {
-    return m_castleInfo & 0b00000100;
+    return m_flags.m_castleInfo & 0b0010;
   }
 
   bool canBlackShortCastle() const noexcept {
-    return m_castleInfo & 0b00000001;
+    return m_flags.m_castleInfo & 0b0001;
   }
 
   //! Is the provided square in [a1 to h8] range?
@@ -124,11 +124,11 @@ public:
   }
 
   bool isShortCastleAvailable() const noexcept {
-    return m_castleInfo & 0b00010001;
+    return m_flags.m_castleInfo & 0b0101;
   }
 
   bool isLongCastleAvailable() const noexcept {
-    return m_castleInfo & 0b01000100;
+    return m_flags.m_castleInfo & 0b1010;
   }
   //! Is the provided square empty? Returns false for invalid square.
   bool isEmpty(const BoardSquare& sqr) const noexcept {
@@ -136,11 +136,11 @@ public:
   }
 
   bool isWhitesMove() const noexcept {
-    return m_isWhitesMove;
+    return m_flags.m_isWhitesMove;
   }
 
   bool isEnemyPiece(const BoardSquare& sqr) const noexcept {
-    return !isEmpty(sqr) && (isWhite(sqr) ^ m_isWhitesMove);
+    return !isEmpty(sqr) && (isWhite(sqr) ^ m_flags.m_isWhitesMove);
   }
 
   bool isEnPass(const BoardSquare& sqr) const noexcept {

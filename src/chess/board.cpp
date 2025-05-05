@@ -47,12 +47,8 @@ Board::Board()
             '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'} //
           //      A    B    C    D    E    F    G    H        //
   , m_pieces{ 0 }
-  , m_pieceCount(0)
-  , m_castleInfo(0)
-  , m_isWhitesMove(true)
   , m_enPass(0)
-  , m_halfMoves(0)
-  , m_fullMoves(0)
+  , m_flags{0, 0, 1, 0, 0}
 {}
 
 void Board::loadFen(const std::string& fen) noexcept {
@@ -61,11 +57,11 @@ void Board::loadFen(const std::string& fen) noexcept {
     unsigned int i = place(fen);
     if (i == fen.size()) {
       Logger::debug("As no additional parameters were given, using defaults");
-      m_isWhitesMove = true;
-      m_castleInfo = 0b01010101;
       m_enPass = 0;
-      m_halfMoves = 0;
-      m_fullMoves = 1;
+      m_flags.m_isWhitesMove = true;
+      m_flags.m_castleInfo = 0b1111;
+      m_flags.m_halfMoves = 0;
+      m_flags.m_fullMoves = 1;
       return;
     }
 
@@ -114,20 +110,20 @@ std::list<Move> Board::getValidMoves(const BoardSquare& sqr) const noexcept {
 
 std::list<Move> Board::getValidMoves() const noexcept {
   std::string msg;
-  for (int i = 0; i < m_pieceCount; ++i) {
+  for (int i = 0; i < m_flags.m_pieceCount; ++i) {
     msg += std::to_string(int(m_pieces[i])) + ", ";
   }
   msg.pop_back();
   msg.pop_back();
   Logger::debug("Pieces: " + msg);
   std::list<Move> moves;
-  for (int i = 0; i < m_pieceCount; ++i) {
+  for (int i = 0; i < m_flags.m_pieceCount; ++i) {
     const BoardSquare& sqr = m_pieces[i];
     if (!isValid(sqr)) {
       break;
     }
 
-    if (isWhite(sqr) == m_isWhitesMove) {
+    if (isWhite(sqr) == m_flags.m_isWhitesMove) {
       moves.splice(moves.end(), getValidMoves(sqr));
     }
   }
@@ -136,12 +132,12 @@ std::list<Move> Board::getValidMoves() const noexcept {
 }
 
 void Board::removePiece(const BoardSquare& sqr) noexcept {
-  for (int i = 0; i < m_pieceCount; ++i) {
+  for (int i = 0; i < m_flags.m_pieceCount; ++i) {
     if (m_pieces[i] == sqr) {
       m_pieces[i] = 0;
       m_board[sqr] = ' ';
-      --m_pieceCount;
-      std::swap(m_pieces[i], m_pieces[m_pieceCount]);
+      --m_flags.m_pieceCount;
+      std::swap(m_pieces[i], m_pieces[m_flags.m_pieceCount]);
       return;
     }
   }
@@ -155,7 +151,7 @@ Board Board::makeMove(const Move& move) const noexcept {
   {
     board.removePiece(move.to);
   } else if (move.to == m_enPass) {
-    const BoardSquare& enemyPawnSqr = move.to + (m_isWhitesMove? WIDTH : -WIDTH);
+    const BoardSquare& enemyPawnSqr = move.to + (m_flags.m_isWhitesMove? WIDTH : -WIDTH);
     board.removePiece(enemyPawnSqr);
     board.m_enPass = 0;
   } else if (isKing(move.from)) {
@@ -163,7 +159,7 @@ Board Board::makeMove(const Move& move) const noexcept {
     if (std::abs(diff) >= 2) {
       const BoardSquare& rookPos = move.from + ((diff > 0)? 3 : -4);
       const BoardSquare& newRookPos = move.to - 1 + (diff < 0) * 2;
-      for (int i = 0; i < m_pieceCount; ++i) {
+      for (int i = 0; i < m_flags.m_pieceCount; ++i) {
         if (m_pieces[i] == rookPos) {
           board.m_pieces[i] = newRookPos;
           break;
@@ -171,13 +167,13 @@ Board Board::makeMove(const Move& move) const noexcept {
       }
       std::swap(board.m_board[newRookPos], board.m_board[rookPos]);
     }
-  } else if (isPawn(move.from) && (move.from / 10 == (m_isWhitesMove? 8 : 3))) {
-    board.m_enPass = move.to + (m_isWhitesMove? WIDTH : -WIDTH);
+  } else if (isPawn(move.from) && (move.from / 10 == (m_flags.m_isWhitesMove? 8 : 3))) {
+    board.m_enPass = move.to + (m_flags.m_isWhitesMove? WIDTH : -WIDTH);
   }
 
   board.m_board[move.to] = m_board[move.from];
   board.m_board[move.from] = ' ';
-  board.m_isWhitesMove ^= 1;
+  board.m_flags.m_isWhitesMove ^= 1;
   return board;
 }
 
@@ -256,8 +252,8 @@ unsigned int Board::place(const std::string& fen) {
       case 'K': {
         const BoardSquare& sqr = OFFSET + i * WIDTH + j;
         m_board[sqr] = val;
-        m_pieces[m_pieceCount] = sqr;
-        ++m_pieceCount;
+        m_pieces[m_flags.m_pieceCount] = sqr;
+        ++m_flags.m_pieceCount;
         const char chessField[3] = {char('a' + j), char('8' - i), '\0'};
         const std::string& msg = "Placing " + std::string(1, val) +
                                  " on: " + chessField;
@@ -272,7 +268,7 @@ unsigned int Board::place(const std::string& fen) {
     }
   }
 
-  Logger::debug("Loaded pieces total count: " + std::to_string(m_pieceCount));
+  Logger::debug("Loaded pieces total count: " + std::to_string(m_flags.m_pieceCount));
   assert(i * 8 + j == 64);
   return idx;
 }
@@ -282,10 +278,10 @@ void Board::loadWhoseMove(unsigned int& r_i, const std::string& fen) {
   assert(r_i < fen.size());
 
   if (fen[r_i] == 'w') {
-    m_isWhitesMove = true;
+    m_flags.m_isWhitesMove = true;
     Logger::debug("It is white's move");
   } else if (fen[r_i] == 'b') {
-    m_isWhitesMove = false;
+    m_flags.m_isWhitesMove = false;
     Logger::debug("It is black's move");
   } else {
     throw FenException("Wrong FEN: Who's move");
@@ -299,23 +295,23 @@ void Board::loadCastles(unsigned int& r_i, const std::string& fen) {
   while (fen[r_i] != ' ') {
     switch (fen[r_i]) {
     case 'Q':
-      m_castleInfo |= 0b01000000;
+      m_flags.m_castleInfo |= 0b1000;
       Logger::debug("White can castle queen side");
       break;
     case 'K':
-      m_castleInfo |= 0b00010000;
+      m_flags.m_castleInfo |= 0b0100;
       Logger::debug("White can castle king side");
       break;
     case 'q':
-      m_castleInfo |= 0b00000100;
+      m_flags.m_castleInfo |= 0b0010;
       Logger::debug("Black can castle queen side");
       break;
     case 'k':
-      m_castleInfo |= 0b00000001;
+      m_flags.m_castleInfo |= 0b0001;
       Logger::debug("Black can castle king side");
       break;
     case '-':
-      m_castleInfo = 0;
+      m_flags.m_castleInfo = 0;
       break;
     default:
       throw FenException("Wrong FEN: Castle");
@@ -338,8 +334,8 @@ void Board::loadEnPass(unsigned int& r_i, const std::string& fen) {
   assert(r_i < fen.size());
   const char enPss[3] = {fen[r_i - 1], fen[r_i], 0};
   m_enPass = OFFSET + WIDTH * 5              // EnPass can only be on 6 or 3!
-             + fen[r_i - 1] - 'a'            // Which file?
-             - (WIDTH * 3 * m_isWhitesMove); // 6th or 3rd line?
+             + fen[r_i - 1] - 'a'                     // Which file?
+             - (WIDTH * 3 * m_flags.m_isWhitesMove);  // 6th or 3rd line?
   Logger::debug("En-passant available on " + std::string(enPss));
   ++r_i;
 }
@@ -351,12 +347,12 @@ void Board::loadMoves(unsigned int& r_i, const std::string& fen) {
     if (fen[r_i] < '0' || fen[r_i] > '9') {
       throw FenException("Wrong FEN: Invalid halfMoves");
     }
-    m_halfMoves *= 10;
-    m_halfMoves += fen[r_i] - '0';
+    m_flags.m_halfMoves *= 10;
+    m_flags.m_halfMoves += fen[r_i] - '0';
     ++r_i;
     assert(r_i < fen.size());
   }
-  Logger::debug("Half moves: " + std::to_string(m_halfMoves));
+  Logger::debug("Half moves: " + std::to_string(m_flags.m_halfMoves));
 
   ++r_i;
 
@@ -365,10 +361,10 @@ void Board::loadMoves(unsigned int& r_i, const std::string& fen) {
     if (fen[r_i] < '0' || fen[r_i] > '9') {
       throw FenException("Wrong FEN: Invalid halfMoves");
     }
-    m_fullMoves *= 10;
-    m_fullMoves += fen[r_i] - '0';
+    m_flags.m_fullMoves *= 10;
+    m_flags.m_fullMoves += fen[r_i] - '0';
     ++r_i;
   }
-  Logger::debug("Full moves: " + std::to_string(m_fullMoves));
+  Logger::debug("Full moves: " + std::to_string(m_flags.m_fullMoves));
 }
 
