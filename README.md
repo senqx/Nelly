@@ -9,7 +9,7 @@
   [![License][license-badge]][license-link]
   <br>
   
-  No working versions yet. README.md will be updated after first version release.
+  No working versions yet. README.md will be updated after the first version release.
 </div>
 
 
