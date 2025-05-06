@@ -81,27 +81,27 @@ std::list<Move> Board::getValidMoves(const BoardSquare& sqr) const noexcept {
   switch(val) {
     case 'P':
     case 'p':
-      moves.splice(moves.end(), Pawn::getValidMoves(this, sqr));
+      moves.splice(moves.end(), Pawn::getValidMoves(*this, sqr));
       break;
     case 'N':
     case 'n':
-      moves.splice(moves.end(), Knight::getValidMoves(this, sqr));
+      moves.splice(moves.end(), Knight::getValidMoves(*this, sqr));
       break;
     case 'B':
     case 'b':
-      moves.splice(moves.end(), Bishop::getValidMoves(this, sqr));
+      moves.splice(moves.end(), Bishop::getValidMoves(*this, sqr));
       break;
     case 'R':
     case 'r':
-      moves.splice(moves.end(), Rook::getValidMoves(this, sqr));
+      moves.splice(moves.end(), Rook::getValidMoves(*this, sqr));
       break;
     case 'Q':
     case 'q':
-      moves.splice(moves.end(), Queen::getValidMoves(this, sqr));
+      moves.splice(moves.end(), Queen::getValidMoves(*this, sqr));
       break;
     case 'K':
     case 'k':
-      moves.splice(moves.end(), King::getValidMoves(this, sqr));
+      moves.splice(moves.end(), King::getValidMoves(*this, sqr));
       break;
   }
 

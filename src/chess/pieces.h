@@ -33,12 +33,12 @@ class Board;
 struct Pawn {
   /*!
    *  @brief Get all valid moves for a Pawn.
-   *  @param p_board Pointer to the current board.
+   *  @param board Current board.
    *  @param sqr Current square of the Pawn.
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
+    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
 };
 
 /*!
@@ -48,12 +48,12 @@ struct Pawn {
 struct Knight {
   /*!
    *  @brief Get all valid moves for a Knight.
-   *  @param p_board Pointer to the current board.
+   *  @param board Current board.
    *  @param sqr Current square of the Knight.
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
+    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
 };
 
 /*!
@@ -63,12 +63,13 @@ struct Knight {
 struct Bishop {
   /*!
    *  @brief Get all valid moves for a Bishop.
-   *  @param p_board Pointer to the current board.
+   *  @param board Current board.
+   *  @param sqr Current square of the Pawn.
    *  @param sqr Current square of the Bishop.
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
+    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
 };
 
 /*!
@@ -78,12 +79,12 @@ struct Bishop {
 struct Rook {
   /*!
    *  @brief Get all valid moves for a Rook.
-   *  @param p_board Pointer to the current board.
+   *  @param board Current board.
    *  @param sqr Current square of the Rook.
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
+    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
 };
 
 /*!
@@ -93,12 +94,12 @@ struct Rook {
 struct Queen {
   /*!
    *  @brief Get all valid moves for a Queen.
-   *  @param p_board Pointer to the current board.
+   *  @param board Current board.
    *  @param sqr Current square of the Queen.
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
+    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
 };
 
 /*!
@@ -108,12 +109,12 @@ struct Queen {
 struct King {
   /*!
    *  @brief Get all valid moves for a King.
-   *  @param p_board Pointer to the current board.
+   *  @param board Current board.
    *  @param sqr Current square of the King.
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
+    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
 };
 
 #endif

@@ -25,32 +25,32 @@
 #include "chess.h"
 #include "move.h"
 
-std::list<Move> Pawn::getValidMoves(const Board* p_board,
+std::list<Move> Pawn::getValidMoves(const Board& board,
                                     const BoardSquare& sqr) noexcept
 {
   Logger::debug("Getting moves for Pawn...");
-  const int forward = p_board->isWhitesMove()? -Board::WIDTH : Board::WIDTH;
+  const int forward = board.isWhitesMove()? -Board::WIDTH : Board::WIDTH;
 
   std::list<Move> moves;
-  if (!p_board->isWhite(sqr) ^ p_board->isWhitesMove()) {
-    if (p_board->isEmpty(sqr + forward)) {
+  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
+    if (board.isEmpty(sqr + forward)) {
       moves.push_back(Move(sqr, sqr + forward));
 
-      if ((sqr / 10 == (3 + p_board->isWhitesMove() * 5)) &&
-           p_board->isEmpty(sqr + 2 * forward))
+      if ((sqr / 10 == (3 + board.isWhitesMove() * 5)) &&
+           board.isEmpty(sqr + 2 * forward))
       {
         moves.push_back(Move(sqr, sqr + 2 * forward));
       }
     }
-    if (p_board->isValid(sqr + forward - 1) &&
-        (p_board->isEnemyPiece(sqr + forward - 1) ||
-         p_board->isEnPass(sqr + forward - 1)))
+    if (board.isValid(sqr + forward - 1) &&
+        (board.isEnemyPiece(sqr + forward - 1) ||
+         board.isEnPass(sqr + forward - 1)))
     {
       moves.push_back(Move(sqr, sqr + forward - 1));
     }
-    if (p_board->isValid(sqr + forward + 1) &&
-        (p_board->isEnemyPiece(sqr + forward + 1) ||
-         p_board->isEnPass(sqr + forward + 1)))
+    if (board.isValid(sqr + forward + 1) &&
+        (board.isEnemyPiece(sqr + forward + 1) ||
+         board.isEnPass(sqr + forward + 1)))
     {
       moves.push_back(Move(sqr, sqr + forward + 1));
     }
@@ -59,13 +59,13 @@ std::list<Move> Pawn::getValidMoves(const Board* p_board,
   return moves;
 }
 
-std::list<Move> Knight::getValidMoves(const Board* p_board,
+std::list<Move> Knight::getValidMoves(const Board& board,
                                       const BoardSquare& sqr) noexcept
 {
   Logger::debug("Getting moves for Knight...");
   std::list<Move> moves;
 
-  if (!p_board->isWhite(sqr) ^ p_board->isWhitesMove()) {
+  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
     const BoardSquare squares[8] = {
       static_cast<BoardSquare>(sqr - (Board::WIDTH * 2 + 1)),
       static_cast<BoardSquare>(sqr - (Board::WIDTH * 2 - 1)),
@@ -78,8 +78,8 @@ std::list<Move> Knight::getValidMoves(const Board* p_board,
     };
 
     for (const BoardSquare& target : squares) {
-      if (p_board->isValid(target) &&
-          (p_board->isEmpty(target) || p_board->isEnemyPiece(target)))
+      if (board.isValid(target) &&
+          (board.isEmpty(target) || board.isEnemyPiece(target)))
       {
         moves.push_back(Move(sqr, target));
       }
@@ -89,24 +89,24 @@ std::list<Move> Knight::getValidMoves(const Board* p_board,
   return moves;
 }
 
-std::list<Move> Bishop::getValidMoves(const Board* p_board,
+std::list<Move> Bishop::getValidMoves(const Board& board,
                                       const BoardSquare& sqr) noexcept
 {
   Logger::debug("Getting moves for Bishop...");
   std::list<Move> moves;
 
-  if (!p_board->isWhite(sqr) ^ p_board->isWhitesMove()) {
+  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
     // Main diagonal
     constexpr int offsetMainDiag = Board::WIDTH + 1;
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr - i * offsetMainDiag;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -114,13 +114,13 @@ std::list<Move> Bishop::getValidMoves(const Board* p_board,
     }
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr + i * offsetMainDiag;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -131,13 +131,13 @@ std::list<Move> Bishop::getValidMoves(const Board* p_board,
     constexpr int offsetScndDiag = Board::WIDTH - 1;
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr - i * offsetScndDiag;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -145,13 +145,13 @@ std::list<Move> Bishop::getValidMoves(const Board* p_board,
     }
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr + i * offsetScndDiag;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -162,23 +162,23 @@ std::list<Move> Bishop::getValidMoves(const Board* p_board,
   return moves;
 }
 
-std::list<Move> Rook::getValidMoves(const Board* p_board,
+std::list<Move> Rook::getValidMoves(const Board& board,
                                     const BoardSquare& sqr) noexcept
 {
   Logger::debug("Getting moves for Rook...");
   std::list<Move> moves;
 
-  if (!p_board->isWhite(sqr) ^ p_board->isWhitesMove()) {
+  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
     // Vertical
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr - i * Board::WIDTH;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -186,13 +186,13 @@ std::list<Move> Rook::getValidMoves(const Board* p_board,
     }
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr + i * Board::WIDTH;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -202,13 +202,13 @@ std::list<Move> Rook::getValidMoves(const Board* p_board,
     // Horizontal
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr - i;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -216,13 +216,13 @@ std::list<Move> Rook::getValidMoves(const Board* p_board,
     }
     for (int i = 1; ; ++i) {
       const BoardSquare target = sqr + i;
-      if (!p_board->isValid(target)) {
+      if (!board.isValid(target)) {
         break;
       }
-      if (p_board->isEmpty(target)) {
+      if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (p_board->isEnemyPiece(target)) {
+        if (board.isEnemyPiece(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -233,23 +233,23 @@ std::list<Move> Rook::getValidMoves(const Board* p_board,
   return moves;
 }
 
-std::list<Move> Queen::getValidMoves(const Board* p_board,
+std::list<Move> Queen::getValidMoves(const Board& board,
                                      const BoardSquare& sqr) noexcept
 {
   Logger::debug("Getting moves for Queen...");
-  std::list<Move> moves = Rook::getValidMoves(p_board, sqr);
-  moves.splice(moves.begin(), Bishop::getValidMoves(p_board, sqr));
+  std::list<Move> moves = Rook::getValidMoves(board, sqr);
+  moves.splice(moves.begin(), Bishop::getValidMoves(board, sqr));
 
   return moves;
 }
 
-std::list<Move> King::getValidMoves(const Board* p_board,
+std::list<Move> King::getValidMoves(const Board& board,
                                     const BoardSquare& sqr) noexcept
 {
   Logger::debug("Getting moves for King...");
   std::list<Move> moves;
 
-  if (!p_board->isWhite(sqr) ^ p_board->isWhitesMove()) {
+  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
     const BoardSquare squares[8] = {
       static_cast<BoardSquare>(sqr - Board::WIDTH - 1),
       static_cast<BoardSquare>(sqr - Board::WIDTH),
@@ -262,24 +262,24 @@ std::list<Move> King::getValidMoves(const Board* p_board,
     };
 
     for (const BoardSquare& target : squares) {
-      if (p_board->isValid(target) &&
-          (p_board->isEmpty(target) || p_board->isEnemyPiece(target)))
+      if (board.isValid(target) &&
+          (board.isEmpty(target) || board.isEnemyPiece(target)))
       {
         moves.push_back(Move(sqr, target));
       }
     }
 
-    if (p_board->isShortCastleAvailable() &&
-        p_board->isEmpty(sqr + 1) && // Is also not under attack.
-        p_board->isEmpty(sqr + 2))
+    if (board.isShortCastleAvailable() &&
+        board.isEmpty(sqr + 1) && // Is also not under attack.
+        board.isEmpty(sqr + 2))
     {
       moves.push_back(Move(sqr, sqr + 2));
     }
 
-    if (p_board->isLongCastleAvailable() &&
-        p_board->isEmpty(sqr - 1) && // Is also not under attack.
-        p_board->isEmpty(sqr - 2) &&
-        p_board->isEmpty(sqr - 3))
+    if (board.isLongCastleAvailable() &&
+        board.isEmpty(sqr - 1) && // Is also not under attack.
+        board.isEmpty(sqr - 2) &&
+        board.isEmpty(sqr - 3))
     {
       moves.push_back(Move(sqr, sqr - 2));
     }
