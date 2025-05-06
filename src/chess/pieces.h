@@ -26,32 +26,92 @@
 class Move;
 class Board;
 
+/*!
+ *  @struct Pawn
+ *  @brief Contains logic for Pawn piece moves.
+ */
 struct Pawn {
+  /*!
+   *  @brief Get all valid moves for a Pawn.
+   *  @param p_board Pointer to the current board.
+   *  @param sqr Current square of the Pawn.
+   *  @return A list of valid moves.
+   */
   static std::list<Move>
     getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
+/*!
+ *  @struct Knight
+ *  @brief Contains logic for Knight piece moves.
+ */
 struct Knight {
+  /*!
+   *  @brief Get all valid moves for a Knight.
+   *  @param p_board Pointer to the current board.
+   *  @param sqr Current square of the Knight.
+   *  @return A list of valid moves.
+   */
   static std::list<Move>
     getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
+/*!
+ *  @struct Bishop
+ *  @brief Contains logic for Bishop piece moves.
+ */
 struct Bishop {
+  /*!
+   *  @brief Get all valid moves for a Bishop.
+   *  @param p_board Pointer to the current board.
+   *  @param sqr Current square of the Bishop.
+   *  @return A list of valid moves.
+   */
   static std::list<Move>
     getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
+/*!
+ *  @struct Rook
+ *  @brief Contains logic for Rook piece moves.
+ */
 struct Rook {
+  /*!
+   *  @brief Get all valid moves for a Rook.
+   *  @param p_board Pointer to the current board.
+   *  @param sqr Current square of the Rook.
+   *  @return A list of valid moves.
+   */
   static std::list<Move>
     getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
+/*!
+ *  @struct Queen
+ *  @brief Contains logic for Queen piece moves.
+ */
 struct Queen {
+  /*!
+   *  @brief Get all valid moves for a Queen.
+   *  @param p_board Pointer to the current board.
+   *  @param sqr Current square of the Queen.
+   *  @return A list of valid moves.
+   */
   static std::list<Move>
     getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
 
+/*!
+ *  @struct King
+ *  @brief Contains logic for King piece moves.
+ */
 struct King {
+  /*!
+   *  @brief Get all valid moves for a King.
+   *  @param p_board Pointer to the current board.
+   *  @param sqr Current square of the King.
+   *  @return A list of valid moves.
+   */
   static std::list<Move>
     getValidMoves(const Board* p_board, const BoardSquare& sqr) noexcept;
 };
