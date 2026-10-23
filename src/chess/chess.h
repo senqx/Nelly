@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CHESS_HEADERS__
-#define __CHESS_HEADERS__
+#ifndef NELLY_CHESS_CHESS_H
+#define NELLY_CHESS_CHESS_H
 
-using BoardSquare = unsigned char;
+using Square = unsigned char;
+
+enum class Color { White, Black };
+enum class CastleSide { King, Queen };
 
 #endif
-

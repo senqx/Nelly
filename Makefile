@@ -1,46 +1,35 @@
-# Name of the executable
-EXE_NAME = Nelly
+CXX ?= g++
+CPPFLAGS ?= -Isrc -Isrc/cpp-logger/include
+CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -Wpedantic
+LDFLAGS ?=
+LDLIBS ?= -pthread
+BIN_DIR ?= bin
+ENGINE_SRC = src/chess/board.cpp src/chess/pieces.cpp src/cpp-logger/src/logger.cpp
+ENGINE_OBJ = $(patsubst %.cpp,$(BIN_DIR)/obj/%.o,$(ENGINE_SRC))
+MAIN_OBJ = $(BIN_DIR)/obj/src/main.o
+TEST_OBJ = $(BIN_DIR)/obj/tests/perft.o
 
-# Directories
-SRC_DIR = src
-BIN_DIR = bin
-OBJ_DIR = $(BIN_DIR)/obj
+all: $(BIN_DIR)/Nelly
 
-# Getting all source files (relative names)
-#CXX_SRC = $(wildcard $(SRC_DIR)/*.cxx)
-#CXX_SRC += $(wildcard $(SRC_DIR)/**/*.cxx)
-CPP_SRC = $(wildcard $(SRC_DIR)/*.cpp)
-CPP_SRC += $(wildcard $(SRC_DIR)/**/*.cpp)
+$(BIN_DIR)/Nelly: $(MAIN_OBJ) $(ENGINE_OBJ)
+	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-# Generating object file names from source files (path/to/main.cxx -> main.o)
-#CXX_OBJ = $(CXX_SRC:.cxx=.o)
-CPP_OBJ = $(CPP_SRC:.cpp=.o)
-OBJ_FILES = $(addprefix $(OBJ_DIR)/, $(notdir $(CXX_OBJ) $(CPP_OBJ)))
+$(BIN_DIR)/perft-tests: $(TEST_OBJ) $(ENGINE_OBJ)
+	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-# Compiler options
-CXX = g++
-CXXFLAGS = -O3
-CXXFLAGS += -Wall
-CXXFLAGS += -Wextra
+# Keep the logger quiet at startup while retaining engine assertions.
+$(BIN_DIR)/obj/src/cpp-logger/src/logger.o: CPPFLAGS += -DNDEBUG
 
-all: build
+$(BIN_DIR)/obj/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-build: $(OBJ_FILES)
-		$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$(EXE_NAME) $(OBJ_FILES)
-		@echo "Build successful!"
-
-$(OBJ_FILES): $(CXX_OBJ) $(CPP_OBJ)
-
-$(CXX_OBJ): create_directories
-		$(CXX) $(CXXFLAGS) -c $(@:.o=.cxx) -o $(OBJ_DIR)/$(notdir $@)
-
-$(CPP_OBJ): create_directories
-		$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp) -o $(OBJ_DIR)/$(notdir $@)
-
-create_directories:
-		@echo "Starting build..."
-		@test -d $(OBJ_DIR) || mkdir -v -p $(OBJ_DIR)
+test: $(BIN_DIR)/Nelly $(BIN_DIR)/perft-tests
+	$(BIN_DIR)/perft-tests
+	python3 tests/cli.py $(BIN_DIR)/Nelly
 
 clean:
-		rm -rf $(OBJ_DIR) $(BIN_DIR)/$(EXE_NAME)
+	$(RM) -r $(BIN_DIR)
 
+-include $(MAIN_OBJ:.o=.d) $(TEST_OBJ:.o=.d) $(ENGINE_OBJ:.o=.d)
+.PHONY: all test clean

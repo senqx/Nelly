@@ -20,66 +20,89 @@
 
 #include <list>
 
-#include "../cpp-logger/logger.h"
+#include "logger.h"
 #include "board.h"
 #include "chess.h"
 #include "move.h"
 
-std::list<Move> Pawn::getValidMoves(const Board& board,
-                                    const BoardSquare& sqr) noexcept
+std::list<Move> Pawn::moves(const Board& board,
+                                    Square sqr)
 {
   Logger::debug("Getting moves for Pawn...");
-  const int forward = board.isWhitesMove()? -Board::WIDTH : Board::WIDTH;
+  const int forward = board.turn() == Color::White
+      ? -Board::width
+      : Board::width;
 
   std::list<Move> moves;
-  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
+  if (board.isWhite(sqr) == (board.turn() == Color::White)) {
     if (board.isEmpty(sqr + forward)) {
-      moves.push_back(Move(sqr, sqr + forward));
+      const Square target = sqr + forward;
+      if (target / Board::width == 2 || target / Board::width == 9) {
+        for (char piece : {'Q', 'R', 'B', 'N'}) {
+          moves.push_back(Move(sqr, target, false, piece));
+        }
+      } else {
+        moves.push_back(Move(sqr, target));
+      }
 
-      if ((sqr / 10 == (3 + board.isWhitesMove() * 5)) &&
+      if ((sqr / 10 == (3 + (board.turn() == Color::White) * 5)) &&
            board.isEmpty(sqr + 2 * forward))
       {
         moves.push_back(Move(sqr, sqr + 2 * forward));
       }
     }
-    if (board.isValid(sqr + forward - 1) &&
-        (board.isEnemyPiece(sqr + forward - 1) ||
-         board.isEnPass(sqr + forward - 1)))
+    if (board.isOnBoard(sqr + forward - 1) &&
+        (board.isEnemy(sqr + forward - 1) ||
+         board.isEnPassantTarget(sqr + forward - 1)))
     {
-      moves.push_back(Move(sqr, sqr + forward - 1));
+      const Square target = sqr + forward - 1;
+      if (target / Board::width == 2 || target / Board::width == 9) {
+        for (char piece : {'Q', 'R', 'B', 'N'}) {
+          moves.push_back(Move(sqr, target, false, piece));
+        }
+      } else {
+        moves.push_back(Move(sqr, target));
+      }
     }
-    if (board.isValid(sqr + forward + 1) &&
-        (board.isEnemyPiece(sqr + forward + 1) ||
-         board.isEnPass(sqr + forward + 1)))
+    if (board.isOnBoard(sqr + forward + 1) &&
+        (board.isEnemy(sqr + forward + 1) ||
+         board.isEnPassantTarget(sqr + forward + 1)))
     {
-      moves.push_back(Move(sqr, sqr + forward + 1));
+      const Square target = sqr + forward + 1;
+      if (target / Board::width == 2 || target / Board::width == 9) {
+        for (char piece : {'Q', 'R', 'B', 'N'}) {
+          moves.push_back(Move(sqr, target, false, piece));
+        }
+      } else {
+        moves.push_back(Move(sqr, target));
+      }
     }
   }
 
   return moves;
 }
 
-std::list<Move> Knight::getValidMoves(const Board& board,
-                                      const BoardSquare& sqr) noexcept
+std::list<Move> Knight::moves(const Board& board,
+                                      Square sqr)
 {
   Logger::debug("Getting moves for Knight...");
   std::list<Move> moves;
 
-  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
-    const BoardSquare squares[8] = {
-      static_cast<BoardSquare>(sqr - (Board::WIDTH * 2 + 1)),
-      static_cast<BoardSquare>(sqr - (Board::WIDTH * 2 - 1)),
-      static_cast<BoardSquare>(sqr - (Board::WIDTH - 2)),
-      static_cast<BoardSquare>(sqr - (Board::WIDTH + 2)),
-      static_cast<BoardSquare>(sqr + (Board::WIDTH - 2)),
-      static_cast<BoardSquare>(sqr + (Board::WIDTH + 2)),
-      static_cast<BoardSquare>(sqr + (Board::WIDTH * 2 + 1)),
-      static_cast<BoardSquare>(sqr + (Board::WIDTH * 2 - 1))
+  if (board.isWhite(sqr) == (board.turn() == Color::White)) {
+    const Square squares[8] = {
+      static_cast<Square>(sqr - (Board::width * 2 + 1)),
+      static_cast<Square>(sqr - (Board::width * 2 - 1)),
+      static_cast<Square>(sqr - (Board::width - 2)),
+      static_cast<Square>(sqr - (Board::width + 2)),
+      static_cast<Square>(sqr + (Board::width - 2)),
+      static_cast<Square>(sqr + (Board::width + 2)),
+      static_cast<Square>(sqr + (Board::width * 2 + 1)),
+      static_cast<Square>(sqr + (Board::width * 2 - 1))
     };
 
-    for (const BoardSquare& target : squares) {
-      if (board.isValid(target) &&
-          (board.isEmpty(target) || board.isEnemyPiece(target)))
+    for (Square target : squares) {
+      if (board.isOnBoard(target) &&
+          (board.isEmpty(target) || board.isEnemy(target)))
       {
         moves.push_back(Move(sqr, target));
       }
@@ -89,38 +112,38 @@ std::list<Move> Knight::getValidMoves(const Board& board,
   return moves;
 }
 
-std::list<Move> Bishop::getValidMoves(const Board& board,
-                                      const BoardSquare& sqr) noexcept
+std::list<Move> Bishop::moves(const Board& board,
+                                      Square sqr)
 {
   Logger::debug("Getting moves for Bishop...");
   std::list<Move> moves;
 
-  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
+  if (board.isWhite(sqr) == (board.turn() == Color::White)) {
     // Main diagonal
-    constexpr int offsetMainDiag = Board::WIDTH + 1;
+    constexpr int offsetMainDiag = Board::width + 1;
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr - i * offsetMainDiag;
-      if (!board.isValid(target)) {
+      const Square target = sqr - i * offsetMainDiag;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
       }
     }
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr + i * offsetMainDiag;
-      if (!board.isValid(target)) {
+      const Square target = sqr + i * offsetMainDiag;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -128,30 +151,30 @@ std::list<Move> Bishop::getValidMoves(const Board& board,
     }
 
     // Secondary diagonal
-    constexpr int offsetScndDiag = Board::WIDTH - 1;
+    constexpr int offsetScndDiag = Board::width - 1;
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr - i * offsetScndDiag;
-      if (!board.isValid(target)) {
+      const Square target = sqr - i * offsetScndDiag;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
       }
     }
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr + i * offsetScndDiag;
-      if (!board.isValid(target)) {
+      const Square target = sqr + i * offsetScndDiag;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -162,37 +185,37 @@ std::list<Move> Bishop::getValidMoves(const Board& board,
   return moves;
 }
 
-std::list<Move> Rook::getValidMoves(const Board& board,
-                                    const BoardSquare& sqr) noexcept
+std::list<Move> Rook::moves(const Board& board,
+                                    Square sqr)
 {
   Logger::debug("Getting moves for Rook...");
   std::list<Move> moves;
 
-  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
+  if (board.isWhite(sqr) == (board.turn() == Color::White)) {
     // Vertical
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr - i * Board::WIDTH;
-      if (!board.isValid(target)) {
+      const Square target = sqr - i * Board::width;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
       }
     }
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr + i * Board::WIDTH;
-      if (!board.isValid(target)) {
+      const Square target = sqr + i * Board::width;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -201,28 +224,28 @@ std::list<Move> Rook::getValidMoves(const Board& board,
 
     // Horizontal
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr - i;
-      if (!board.isValid(target)) {
+      const Square target = sqr - i;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
       }
     }
     for (int i = 1; ; ++i) {
-      const BoardSquare target = sqr + i;
-      if (!board.isValid(target)) {
+      const Square target = sqr + i;
+      if (!board.isOnBoard(target)) {
         break;
       }
       if (board.isEmpty(target)) {
         moves.push_back(Move(sqr, target));
       } else {
-        if (board.isEnemyPiece(target)) {
+        if (board.isEnemy(target)) {
           moves.push_back(Move(sqr, target));
         }
         break;
@@ -233,58 +256,55 @@ std::list<Move> Rook::getValidMoves(const Board& board,
   return moves;
 }
 
-std::list<Move> Queen::getValidMoves(const Board& board,
-                                     const BoardSquare& sqr) noexcept
+std::list<Move> Queen::moves(const Board& board,
+                                     Square sqr)
 {
   Logger::debug("Getting moves for Queen...");
-  std::list<Move> moves = Rook::getValidMoves(board, sqr);
-  moves.splice(moves.begin(), Bishop::getValidMoves(board, sqr));
+  std::list<Move> moves = Rook::moves(board, sqr);
+  moves.splice(moves.begin(), Bishop::moves(board, sqr));
 
   return moves;
 }
 
-std::list<Move> King::getValidMoves(const Board& board,
-                                    const BoardSquare& sqr) noexcept
+std::list<Move> King::moves(const Board& board,
+                                    Square sqr)
 {
   Logger::debug("Getting moves for King...");
   std::list<Move> moves;
 
-  if (!board.isWhite(sqr) ^ board.isWhitesMove()) {
-    const BoardSquare squares[8] = {
-      static_cast<BoardSquare>(sqr - Board::WIDTH - 1),
-      static_cast<BoardSquare>(sqr - Board::WIDTH),
-      static_cast<BoardSquare>(sqr - Board::WIDTH + 1),
-      static_cast<BoardSquare>(sqr - 1),
-      static_cast<BoardSquare>(sqr + 1),
-      static_cast<BoardSquare>(sqr + Board::WIDTH - 1),
-      static_cast<BoardSquare>(sqr + Board::WIDTH),
-      static_cast<BoardSquare>(sqr + Board::WIDTH + 1),
+  if (board.isWhite(sqr) == (board.turn() == Color::White)) {
+    const Square squares[8] = {
+      static_cast<Square>(sqr - Board::width - 1),
+      static_cast<Square>(sqr - Board::width),
+      static_cast<Square>(sqr - Board::width + 1),
+      static_cast<Square>(sqr - 1),
+      static_cast<Square>(sqr + 1),
+      static_cast<Square>(sqr + Board::width - 1),
+      static_cast<Square>(sqr + Board::width),
+      static_cast<Square>(sqr + Board::width + 1),
     };
 
-    for (const BoardSquare& target : squares) {
-      if (board.isValid(target) &&
-          (board.isEmpty(target) || board.isEnemyPiece(target)))
+    for (Square target : squares) {
+      if (board.isOnBoard(target) &&
+          (board.isEmpty(target) || board.isEnemy(target)))
       {
         moves.push_back(Move(sqr, target));
       }
     }
 
-    if (board.isShortCastleAvailable() &&
-        board.isEmpty(sqr + 1) && // Is also not under attack.
-        board.isEmpty(sqr + 2))
-    {
+    const bool white = board.isWhite(sqr);
+    const Square expectedKing = white ? 95 : 25;
+
+    if (sqr == expectedKing
+        && board.canCastle(CastleSide::King)) {
       moves.push_back(Move(sqr, sqr + 2));
     }
 
-    if (board.isLongCastleAvailable() &&
-        board.isEmpty(sqr - 1) && // Is also not under attack.
-        board.isEmpty(sqr - 2) &&
-        board.isEmpty(sqr - 3))
-    {
+    if (sqr == expectedKing
+        && board.canCastle(CastleSide::Queen)) {
       moves.push_back(Move(sqr, sqr - 2));
     }
   }
 
   return moves;
 }
-

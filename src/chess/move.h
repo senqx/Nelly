@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CHESS_MOVE__
-#define __CHESS_MOVE__
+#ifndef NELLY_CHESS_MOVE_H
+#define NELLY_CHESS_MOVE_H
 
 #include "chess.h"
 
@@ -28,9 +28,10 @@
  *  @brief A struct to work with moves.
  */
 struct Move {
-  BoardSquare from; //!< Move from this tile.
-  BoardSquare to;   //!< Move to this tile.
-  bool isCheck;     //!< Is this move a check?
+  Square from; //!< Move from this tile.
+  Square to;   //!< Move to this tile.
+  bool givesCheck;  //!< Does this move give check?
+  char promotion;   //!< Promotion piece (Q/R/B/N), or '\0'.
 
   /*!
    *  @brief Default contructor.
@@ -41,7 +42,8 @@ struct Move {
   Move()
     : from(0)
     , to(0)
-    , isCheck(0)
+    , givesCheck(0)
+    , promotion(0)
   {}
 
   /*!
@@ -49,41 +51,46 @@ struct Move {
    *
    *  @param from Source square.
    *  @param to Destination square.
-   *  @param isCheck Indicates whether the move results in a check (default: false).
+   *  @param givesCheck Indicates whether the move results in a check (default: false).
    */
-  Move(const BoardSquare from, const BoardSquare to, const bool isCheck = 0)
+  Move(const Square from, const Square to, const bool givesCheck = 0,
+       const char promotion = 0)
     : from(from)
     , to(to)
-    , isCheck(isCheck)
+    , givesCheck(givesCheck)
+    , promotion(promotion)
   {}
 
   /*!
-   *  @brief Set isCheck field.
+   *  @brief Set givesCheck field.
    *
-   *  @param val Boolean value to set isCheck to (default: true).
+   *  @param val Boolean value to set givesCheck to (default: true).
    */
   void setCheck(const bool val = true) noexcept {
-    isCheck = val;
+    givesCheck = val;
   }
 
   /*!
-   *  @brief Convert the move to a string in algebraic notation.
+   *  @brief Convert the move to a compact diagnostic string.
    *
    *  @return A string representation of the move (e.g., e2->e4).
    */
-  std::string toString() const noexcept {
-    const BoardSquare& from_i = from / 10 - 2;
-    const BoardSquare& from_j = from % 10 - 1;
-    const BoardSquare& to_i = to / 10 - 2;
-    const BoardSquare& to_j = to % 10 - 1;
+  std::string str() const {
+    const Square fromI = from / 10 - 2;
+    const Square fromJ = from % 10 - 1;
+    const Square toI = to / 10 - 2;
+    const Square toJ = to % 10 - 1;
     std::string str = "a0->a0";
-    str[0] += from_j;
-    str[1] += 8 - from_i;
-    str[4] += to_j;
-    str[5] += 8 - to_i;
+    str[0] += fromJ;
+    str[1] += 8 - fromI;
+    str[4] += toJ;
+    str[5] += 8 - toI;
+    if (promotion) {
+      str += '=';
+      str += promotion;
+    }
     return str;
   }
 };
 
 #endif
-

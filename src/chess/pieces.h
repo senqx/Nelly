@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PIECES__
-#define __PIECES__
+#ifndef NELLY_CHESS_PIECES_H
+#define NELLY_CHESS_PIECES_H
 
 #include <list>
 
@@ -38,7 +38,7 @@ struct Pawn {
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
+    moves(const Board& board, Square sqr);
 };
 
 /*!
@@ -53,7 +53,7 @@ struct Knight {
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
+    moves(const Board& board, Square sqr);
 };
 
 /*!
@@ -69,7 +69,7 @@ struct Bishop {
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
+    moves(const Board& board, Square sqr);
 };
 
 /*!
@@ -84,7 +84,7 @@ struct Rook {
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
+    moves(const Board& board, Square sqr);
 };
 
 /*!
@@ -99,7 +99,7 @@ struct Queen {
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
+    moves(const Board& board, Square sqr);
 };
 
 /*!
@@ -114,8 +114,7 @@ struct King {
    *  @return A list of valid moves.
    */
   static std::list<Move>
-    getValidMoves(const Board& board, const BoardSquare& sqr) noexcept;
+    moves(const Board& board, Square sqr);
 };
 
 #endif
-

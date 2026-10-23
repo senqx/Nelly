@@ -3,3 +3,7 @@ Nelly.exe
 *.log
 *.out
 *.o
+
+bin*/
+*.d
+__pycache__/

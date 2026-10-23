@@ -16,34 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <iostream>
 #include <list>
-
+#include <string>
 #include "chess/board.h"
 #include "chess/move.h"
-#include "chess/pieces.h"
-#include "cpp-logger/logger.h"
 
 int main(int argc, char* argv[]) {
-  Logger::set_mode("debug");
-  Logger::set_terminal_output(true);
-  Logger::info("Running Nelly v0.0.1");
-
-  Board b;
-  if (argc == 2) {
-    b.loadFen(argv[1]);
-  } else {
-    b.loadFen();
+  if (argc == 2 && std::string(argv[1]) == "--help") {
+    std::cout << "Usage: Nelly [\"FEN\"]\nPrint a position and its legal moves.\n"
+                 "This is a development tool; UCI and computer play are not implemented.\n";
+    return 0;
   }
-	b.print();
-
-  const std::list<Move>& moves = b.getValidMoves();
-  Logger::info("Total move count: " + std::to_string(moves.size()));
-  for (const Move& move : moves) {
-    const std::string& mv = b.getVal(move.from) + move.toString();
-    const Board& boardAfterMove = b.makeMove(move);
-    Logger::info("Made the move " + mv);
-    boardAfterMove.print();
+  if (argc > 2) {
+    std::cerr << "Usage: Nelly [\"FEN\"]\n";
+    return 1;
   }
-
-	return 0;
+  try {
+    Board board;
+    board.setFen(argc == 2 ? argv[1] : Board::defaultFen);
+    std::cout << "Nelly — move-generation development tool\n";
+    board.print();
+    const auto moves = board.legalMoves();
+    std::cout << "Legal moves: " << moves.size() << '\n';
+    for (const Move& move : moves) {
+      std::cout << move.str() << (move.givesCheck ? " +" : "") << '\n';
+    }
+  } catch (const FenError& error) {
+    std::cerr << error.what() << '\n';
+    return 1;
+  }
 }

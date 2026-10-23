@@ -16,33 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __BOARD__
-#define __BOARD__
+#ifndef NELLY_CHESS_BOARD_H
+#define NELLY_CHESS_BOARD_H
 
+#include <array>
 #include <cassert>
-#include <exception>
-#include <string>
 #include <list>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 
 #include "chess.h"
 
 class Move;
 
 /*!
- *  @class FenException
+ *  @class FenError
  *  @brief Exception class for handling issues caused by FEN parsing.
  */
-class FenException : public std::exception {
-  const char* _msg;
-
+class FenError final : public std::invalid_argument {
 public:
-  //! Constructs a FEN exception with the given message.
-  FenException(const char* msg)
-    : _msg(msg)
-  {}
-
-  //! Returns the exception message.
-  const char* what() const noexcept override { return _msg; }
+  using std::invalid_argument::invalid_argument;
 };
 
 /*!
@@ -55,8 +49,8 @@ public:
  */
 class Board {
 public:
-  static constexpr unsigned int HEIGHT = 12;  //!< Extended board's height.
-  static constexpr unsigned int WIDTH = 10;   //!< Extended board's width.
+  static constexpr unsigned int height = 12;  //!< Extended board's height.
+  static constexpr unsigned int width = 10;   //!< Extended board's width.
 
   /*!
    *  @enum Notation
@@ -82,19 +76,23 @@ public:
   };
 
 private:
-  char m_board[HEIGHT * WIDTH]; //!< Flat array holding board contents.
-  BoardSquare m_pieces[32];     //!< Array of piece positions.
-  BoardSquare m_enPass;         //!< En-passant target square.
+  char m_board[height * width]; //!< Flat array holding board contents.
+  Square m_pieces[64];          //!< Array of piece positions.
+  std::array<Square, 2> m_kings; //!< King positions indexed by color.
+  Square m_enPassantTarget; //!< En-passant target square.
 
   struct {
-    unsigned m_pieceCount : 6;    //!< Number of active pieces.
-    unsigned m_castleInfo : 4;    //!< Castling rights encoded as [QKqk].
-    unsigned m_isWhitesMove : 1;  //!< Moving side.
-    unsigned m_halfMoves : 7;     //!< Halfmove clock.
-    unsigned m_fullMoves : 16;    //!< Fullmove number.
+    unsigned m_pieceCount : 7;    //!< Number of active pieces.
+    unsigned m_castlingRights : 4; //!< Castling rights encoded as [QKqk].
+    unsigned m_whiteToMove : 1;    //!< Moving side.
+    unsigned m_halfmoveClock : 16;  //!< Halfmove clock.
+    unsigned m_fullmoveNumber : 16; //!< Fullmove number.
   } m_flags;
 
 public:
+  static constexpr std::string_view defaultFen =
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
   //! Default constructor. Creates an empty board.
   Board();
 
@@ -106,103 +104,101 @@ public:
    * Loads board state from FEN.
    * If no FEN is given, loads standard chess starting position.
    */
-  void loadFen(const std::string& fen =
-                   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") noexcept;
+  void setFen(std::string_view fen = defaultFen);
 
   //! Returns a new board resulting from applying the given move.
-  Board makeMove(const Move& move) const noexcept;
+  Board makeMove(const Move& move) const;
 
-  //! Returns true if white can castle long.
-  bool canWhiteLongCastle() const noexcept {
-    return m_flags.m_castleInfo & 0b1000;
+  //! Returns true if the side to move is in check.
+  bool isInCheck() const noexcept;
+
+  //! Returns whether the side retains the requested castling right.
+  bool hasCastleRight(Color side, CastleSide castleSide) const noexcept {
+    const unsigned mask = side == Color::White
+        ? (castleSide == CastleSide::Queen ? 0b1000 : 0b0100)
+        : (castleSide == CastleSide::Queen ? 0b0010 : 0b0001);
+    return m_flags.m_castlingRights & mask;
   }
 
-  //! Returns true if white can castle short.
-  bool canWhiteShortCastle() const noexcept {
-    return m_flags.m_castleInfo & 0b0100;
-  }
-
-  //! Returns true if black can castle long.
-  bool canBlackLongCastle() const noexcept {
-    return m_flags.m_castleInfo & 0b0010;
-  }
-
-  //! Returns true if black can castle short.
-  bool canBlackShortCastle() const noexcept {
-    return m_flags.m_castleInfo & 0b0001;
-  }
-
-  //! Returns true if long castling is available to either side.
-  bool isLongCastleAvailable() const noexcept {
-    return m_flags.m_castleInfo & 0b1010;
-  }
-
-  //! Returns true if short castling is available to either side.
-  bool isShortCastleAvailable() const noexcept {
-    return m_flags.m_castleInfo & 0b0101;
-  }
+  //! Returns whether the side to move can legally castle as requested.
+  bool canCastle(CastleSide castleSide) const;
 
   //! Checks if the given square is valid (not out-of-bounds).
-  bool isValid(const BoardSquare& sqr) const noexcept {
-    return m_board[sqr] != '?';
+  bool isOnBoard(Square sqr) const noexcept {
+    return sqr < width * height && m_board[sqr] != '?';
   }
 
   //! Checks if the square is empty (false if invalid).
-  bool isEmpty(const BoardSquare& sqr) const noexcept {
+  bool isEmpty(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return m_board[sqr] == ' ';
   }
 
-  //! Returns true if it's white's move.
-  bool isWhitesMove() const noexcept {
-    return m_flags.m_isWhitesMove;
+  //! Returns the side to move.
+  Color turn() const noexcept {
+    return m_flags.m_whiteToMove ? Color::White : Color::Black;
+  }
+
+  //! Returns the opponent of the side to move.
+  Color enemy() const noexcept {
+    return m_flags.m_whiteToMove ? Color::Black : Color::White;
   }
 
   //! Returns true if square contains an enemy piece.
-  bool isEnemyPiece(const BoardSquare& sqr) const noexcept {
-    return !isEmpty(sqr) && (isWhite(sqr) ^ m_flags.m_isWhitesMove);
+  bool isEnemy(Square target) const noexcept {
+    assert(isOnBoard(target));
+    return !isEmpty(target) &&
+           (isWhite(target) != (turn() == Color::White));
   }
 
   //! Returns true if square is the en-passant target.
-  bool isEnPass(const BoardSquare& sqr) const noexcept {
-    return m_enPass == sqr;
+  bool isEnPassantTarget(Square target) const noexcept {
+    return m_enPassantTarget == target;
   }
 
   /*!
    * Returns true if the piece on the square is white.
    * The square must be valid and not empty.
    */
-  bool isWhite(const BoardSquare& sqr) const noexcept {
-    assert(m_board[sqr] != ' ' || m_board[sqr] != '?');
+  bool isWhite(Square sqr) const noexcept {
+    assert(sqr < width * height);
+    assert(m_board[sqr] != ' ' && m_board[sqr] != '?');
     return !(m_board[sqr] & 0b00100000);
   }
 
   //! Returns true if it is a Pawn on the provided square.
-  bool isPawn(const BoardSquare& sqr) const noexcept {
+  bool isPawn(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return (m_board[sqr] & 0b11011111) == 'P';
   }
 
   //! Returns true if it is a Knight on the provided square.
-  bool isKnight(const BoardSquare& sqr) const noexcept {
+  bool isKnight(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return (m_board[sqr] & 0b11011111) == 'N';
   }
 
   //! Returns true if it is a Bishop on the provided square.
-  bool isBishop(const BoardSquare& sqr) const noexcept {
+  bool isBishop(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return (m_board[sqr] & 0b11011111) == 'B';
   }
 
   //! Returns true if it is a Rook on the provided square.
-  bool isRook(const BoardSquare& sqr) const noexcept {
+  bool isRook(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return (m_board[sqr] & 0b11011111) == 'R';
   }
 
   //! Returns true if it is a Queen on the provided square.
-  bool isQueen(const BoardSquare& sqr) const noexcept {
+  bool isQueen(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return (m_board[sqr] & 0b11011111) == 'Q';
   }
 
   //! Returns true if it is a King on the provided square.
-  bool isKing(const BoardSquare& sqr) const noexcept {
+  bool isKing(Square sqr) const noexcept {
+    assert(sqr < width * height);
     return (m_board[sqr] & 0b11011111) == 'K';
   }
 
@@ -210,47 +206,60 @@ public:
    * Returns the character at the given square.
    * ' ' if empty, '?' if invalid.
    */
-  char getVal(const BoardSquare sqr) const noexcept {
-    assert(sqr < WIDTH * HEIGHT && "Trying to access an out of range square");
+  char pieceAt(const Square sqr) const noexcept {
+    assert(sqr < width * height && "Trying to access an out of range square");
     return m_board[sqr];
   }
 
   //! Returns current en-passant square.
-  BoardSquare getEnPass() const noexcept {
-    return m_enPass;
+  Square enPassantTarget() const noexcept {
+    return m_enPassantTarget;
   }
 
   //! Returns all valid moves for the current board.
-  std::list<Move> getValidMoves() const noexcept;
+  std::list<Move> legalMoves() const;
 
-  //! Returns all valid moves for the piece at the given square.
-  std::list<Move> getValidMoves(const BoardSquare& sqr) const noexcept;
+  //! Returns pseudo-legal moves for the piece at the given square.
+  std::list<Move> pseudoMoves(Square sqr) const;
 
   //! Prints the board to stdout.
-  void print() const noexcept;
+  void print() const;
 
 private:
   //! Removes the piece at the given square from the board.
-  void removePiece(const BoardSquare& sqr) noexcept;
+  void removePiece(Square sqr) noexcept;
+
+  //! Updates a piece-list entry after a move.
+  void movePiece(Square from, Square to) noexcept;
+
+  //! Returns true if the square is attacked by the requested side.
+  bool isAttackedBy(Square target, Color attacker) const noexcept;
+
+  //! Returns the requested side's king square.
+  Square kingSquare(Color side) const noexcept;
+
+  //! Returns the array index for a color.
+  static constexpr std::size_t colorIndex(Color color) noexcept {
+    return color == Color::White ? 0 : 1;
+  }
 
   /*!
    * Parses and places pieces from FEN string.
    * Returns the index of the FEN string where the placement ended.
    */
-  unsigned int place(const std::string& fen);
+  std::size_t parseBoard(std::string_view fen);
 
-  //! Loads side-to-move from FEN string.
-  void loadWhoseMove(unsigned int& r_i, const std::string& fen);
+  //! Parses side-to-move from a FEN string.
+  void parseTurn(std::size_t& r_i, std::string_view fen);
 
-  //! Loads castling rights from the FEN string.
-  void loadCastles(unsigned int& r_i, const std::string& fen);
+  //! Parses castling rights from a FEN string.
+  void parseCastling(std::size_t& r_i, std::string_view fen);
 
-  //! Loads en-passant square from the FEN string.
-  void loadEnPass(unsigned int& r_i, const std::string& fen);
+  //! Parses the en-passant target from a FEN string.
+  void parseEnPassant(std::size_t& r_i, std::string_view fen);
 
-  //! Loads move counters from the FEN string.
-  void loadMoves(unsigned int& r_i, const std::string& fen);
+  //! Parses move counters from a FEN string.
+  void parseClocks(std::size_t& r_i, std::string_view fen);
 };
 
 #endif
-
